@@ -38,10 +38,30 @@ impl CodeWriter {
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("M=D\n".as_bytes());
                 self.sp_add1();
-
-                ()
             }
-            "sub" => (),
+            "sub" => {
+                self.sp_sub1();
+                self.sp_sub1();
+                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("A=M\n".as_bytes());
+                self.file.write_all("D=M\n".as_bytes());
+                self.sp_add1();
+                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("A=M\n".as_bytes());
+                self.file.write_all("D=D-M\n".as_bytes());
+                self.sp_sub1();
+                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("A=M\n".as_bytes());
+                self.file.write_all("M=D\n".as_bytes());
+                self.sp_add1();
+            }
+            "eg" => (),
+            "lt" => (),
+            "gt" => (),
+            "neg" => (),
+            "and" => (),
+            "or" => (),
+            "not" => (),
             _ => (),
         }
     }
