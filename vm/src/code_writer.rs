@@ -55,7 +55,7 @@ impl CodeWriter {
                 self.file.write_all("M=D\n".as_bytes());
                 self.sp_add1();
             }
-            "eg" => (),
+            "eq" => (),
             "lt" => (),
             "gt" => (),
             "neg" => (),
