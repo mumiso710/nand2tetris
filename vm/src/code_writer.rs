@@ -18,7 +18,8 @@ impl CodeWriter {
     pub fn set_file_name(&mut self, filename: &str) -> Result<(), io::Error> {
         let file = File::create(filename)?;
         self.file = file;
-        Ok(()) }
+        Ok(())
+    }
 
     pub fn write_arithmetic(&mut self, command: &str) {
         match command {
@@ -54,9 +55,7 @@ impl CodeWriter {
                 self.file.write_all("M=D\n".as_bytes());
                 self.sp_add1();
             }
-            "not" => {
-                self.
-            }
+            "not" => {}
             "neg" => (),
             "and" => (),
             "or" => (),
