@@ -18,23 +18,22 @@ impl CodeWriter {
     pub fn set_file_name(&mut self, filename: &str) -> Result<(), io::Error> {
         let file = File::create(filename)?;
         self.file = file;
-        Ok(())
-    }
+        Ok(()) }
 
     pub fn write_arithmetic(&mut self, command: &str) {
         match command {
             "add" => {
                 self.sp_sub1();
                 self.sp_sub1();
-                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("@SP\n".as_bytes());
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("D=M\n".as_bytes());
                 self.sp_add1();
-                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("@SP\n".as_bytes());
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("D=D+M\n".as_bytes());
                 self.sp_sub1();
-                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("@SP\n".as_bytes());
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("M=D\n".as_bytes());
                 self.sp_add1();
@@ -42,26 +41,28 @@ impl CodeWriter {
             "sub" => {
                 self.sp_sub1();
                 self.sp_sub1();
-                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("@SP\n".as_bytes());
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("D=M\n".as_bytes());
                 self.sp_add1();
-                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("@SP\n".as_bytes());
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("D=D-M\n".as_bytes());
                 self.sp_sub1();
-                self.file.write_all("@R0\n".as_bytes());
+                self.file.write_all("@SP\n".as_bytes());
                 self.file.write_all("A=M\n".as_bytes());
                 self.file.write_all("M=D\n".as_bytes());
                 self.sp_add1();
             }
-            "eq" => (),
-            "lt" => (),
-            "gt" => (),
+            "not" => {
+                self.
+            }
             "neg" => (),
             "and" => (),
             "or" => (),
-            "not" => (),
+            "eq" => (),
+            "lt" => (),
+            "gt" => (),
             _ => (),
         }
     }
@@ -74,7 +75,7 @@ impl CodeWriter {
                         .write_all(("@".to_string() + &index.to_string() + "\n").as_bytes());
                     self.file.write_all("D=A\n".as_bytes());
 
-                    self.file.write_all("@R0\n".as_bytes());
+                    self.file.write_all("@SP\n".as_bytes());
                     self.file.write_all("A=M\n".as_bytes());
                     self.file.write_all("M=D\n".as_bytes());
 
@@ -88,12 +89,12 @@ impl CodeWriter {
     }
 
     fn sp_add1(&mut self) {
-        self.file.write_all("@R0\n".as_bytes());
+        self.file.write_all("@SP\n".as_bytes());
         self.file.write_all("M=M+1\n".as_bytes());
     }
 
     fn sp_sub1(&mut self) {
-        self.file.write_all("@R0\n".as_bytes());
+        self.file.write_all("@SP\n".as_bytes());
         self.file.write_all("M=M-1\n".as_bytes());
     }
 
