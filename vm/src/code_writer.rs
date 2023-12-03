@@ -77,17 +77,10 @@ impl CodeWriter {
 
                     self.write_d_to_stack();
                 }
-                "local" => {
-                    self.file.write_all("@LCL\n".as_bytes()); // A=LCL
-                    self.file.write_all("A=M\n".as_bytes());
-                    self.file.write_all("D=M\n".as_bytes());
-
-                    self.file
-                        .write_all(("@".to_string() + &index.to_string() + "\n").as_bytes());
-                    self.file.write_all("D=D+A\n".as_bytes());
-
-                    self.write_d_to_stack();
-                }
+                "local" => self.push("LCL", index),
+                "argument" => self.push("ARG", index),
+                "this" => self.push("THIS", index),
+                "that" => self.push("THAT", index),
                 _ => {}
             },
             CommandType::CPop => match segment {
@@ -119,6 +112,19 @@ impl CodeWriter {
 
     fn sp_sub1(&mut self) {
         self.sub1("SP");
+    }
+
+    fn push(&mut self, dest: &str, offset: usize) {
+        self.file
+            .write_all(("@".to_string() + dest + "\n").as_bytes()); // A=LCL
+        self.file.write_all("A=M\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+
+        self.file
+            .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
+        self.file.write_all("D=D+A\n".as_bytes());
+
+        self.write_d_to_stack();
     }
 
     fn pop(&mut self, dest: &str, offset: usize) {
