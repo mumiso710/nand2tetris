@@ -38,18 +38,12 @@ impl CodeWriter {
                 self.write_d_to_stack()
             }
             "not" => {
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
+                self.pop_to_d();
                 self.file.write_all("M=!D\n".as_bytes());
                 self.sp_add1();
             }
             "neg" => {
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
+                self.pop_to_d();
                 self.file.write_all("M=-D\n".as_bytes());
                 self.sp_add1();
             }
@@ -73,7 +67,7 @@ impl CodeWriter {
         }
     }
 
-    pub fn write_push_pop(&mut self, command_type: CommandType, segment: &str, index: i32) {
+    pub fn write_push_pop(&mut self, command_type: CommandType, segment: &str, index: usize) {
         match command_type {
             CommandType::CPush => match segment {
                 "constant" => {
@@ -97,21 +91,49 @@ impl CodeWriter {
                 _ => {}
             },
             CommandType::CPop => match segment {
-                "local" => (),
+                "local" => self.pop("LCL", index),
+                "argument" => self.pop("ARG", index),
+                "this" => self.pop("THIS", index),
+                "that" => self.pop("THAT", index),
                 _ => (),
             },
             _ => (),
         }
     }
 
-    fn sp_add1(&mut self) {
-        self.file.write_all("@SP\n".as_bytes());
+    fn add1(&mut self, dest: &str) {
+        self.file
+            .write_all(("@".to_string() + dest + "\n").as_bytes());
         self.file.write_all("M=M+1\n".as_bytes());
     }
 
-    fn sp_sub1(&mut self) {
-        self.file.write_all("@SP\n".as_bytes());
+    fn sub1(&mut self, dest: &str) {
+        self.file
+            .write_all(("@".to_string() + dest + "\n").as_bytes());
         self.file.write_all("M=M-1\n".as_bytes());
+    }
+
+    fn sp_add1(&mut self) {
+        self.add1("SP");
+    }
+
+    fn sp_sub1(&mut self) {
+        self.sub1("SP");
+    }
+
+    fn pop(&mut self, dest: &str, offset: usize) {
+        self.file
+            .write_all(("@".to_string() + dest + "\n").as_bytes());
+        self.file.write_all("A=M\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+
+        self.file
+            .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
+        self.file.write_all("A=D+A\n".as_bytes());
+
+        self.pop_to_d();
+
+        self.file.write_all("M=D".as_bytes());
     }
 
     fn pop_to_d(&mut self) {
@@ -130,11 +152,7 @@ impl CodeWriter {
 
     fn write_arithmetic_to_d(&mut self, op: &str) {
         self.pop_to_d();
-        // self.sp_sub1();
-        // self.sp_sub1();
-        // self.file.write_all("@SP\n".as_bytes());
-        // self.file.write_all("A=M\n".as_bytes());
-        // self.file.write_all("D=M\n".as_bytes());
+
         self.file.write_all("@SP\n".as_bytes());
         self.file.write_all("A=M\n".as_bytes());
         self.file

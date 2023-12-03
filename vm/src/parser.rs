@@ -75,7 +75,7 @@ impl Parser {
         }
     }
 
-    pub fn arg2(&self) -> i32 {
+    pub fn arg2(&self) -> usize {
         self.command().split(" ").collect::<Vec<&str>>()[2]
             .parse()
             .unwrap()
