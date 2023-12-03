@@ -63,102 +63,12 @@ impl CodeWriter {
                 self.sp_sub1();
                 self.write_d_to_stack();
             }
-            "eq" => {
-                self.write_arithmetic_to_d("-");
+            "eq" => self.write_comparison_to_d("JEQ"),
 
-                // if D-M = JMP
-                self.file.write_all(
-                    ("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes(),
-                );
-                self.label_counter += 1;
+            "gt" => self.write_comparison_to_d("JGT"),
 
-                self.file.write_all("D;JEQ\n".as_bytes());
-                self.file.write_all("@0\n".as_bytes());
-                self.file.write_all("D=A\n".as_bytes());
-                self.file.write_all(
-                    ("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes(),
-                );
-                self.label_counter += 1;
-                self.file.write_all("0;JMP\n".as_bytes());
+            "lt" => self.write_comparison_to_d("JLT"),
 
-                self.file.write_all(
-                    ("(LABEL".to_string() + &((self.label_counter - 2).to_string()) + ")\n")
-                        .as_bytes(),
-                );
-                self.file.write_all("@1\n".as_bytes());
-                self.file.write_all("D=-A\n".as_bytes());
-                self.file.write_all(
-                    ("(LABEL".to_string() + &((self.label_counter - 1).to_string()) + ")\n")
-                        .as_bytes(),
-                );
-
-                self.sp_sub1();
-                self.write_d_to_stack();
-            }
-            "gt" => {
-                self.write_arithmetic_to_d("-");
-
-                // if D-M = JMP
-                self.file.write_all(
-                    ("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes(),
-                );
-                self.label_counter += 1;
-
-                self.file.write_all("D;JGT\n".as_bytes());
-                self.file.write_all("@0\n".as_bytes());
-                self.file.write_all("D=A\n".as_bytes());
-                self.file.write_all(
-                    ("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes(),
-                );
-                self.label_counter += 1;
-                self.file.write_all("0;JMP\n".as_bytes());
-
-                self.file.write_all(
-                    ("(LABEL".to_string() + &((self.label_counter - 2).to_string()) + ")\n")
-                        .as_bytes(),
-                );
-                self.file.write_all("@1\n".as_bytes());
-                self.file.write_all("D=-A\n".as_bytes());
-                self.file.write_all(
-                    ("(LABEL".to_string() + &((self.label_counter - 1).to_string()) + ")\n")
-                        .as_bytes(),
-                );
-
-                self.sp_sub1();
-                self.write_d_to_stack();
-            }
-            "lt" => {
-                self.write_arithmetic_to_d("-");
-
-                // if D-M = JMP
-                self.file.write_all(
-                    ("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes(),
-                );
-                self.label_counter += 1;
-
-                self.file.write_all("D;JLT\n".as_bytes());
-                self.file.write_all("@0\n".as_bytes());
-                self.file.write_all("D=A\n".as_bytes());
-                self.file.write_all(
-                    ("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes(),
-                );
-                self.label_counter += 1;
-                self.file.write_all("0;JMP\n".as_bytes());
-
-                self.file.write_all(
-                    ("(LABEL".to_string() + &((self.label_counter - 2).to_string()) + ")\n")
-                        .as_bytes(),
-                );
-                self.file.write_all("@1\n".as_bytes());
-                self.file.write_all("D=-A\n".as_bytes());
-                self.file.write_all(
-                    ("(LABEL".to_string() + &((self.label_counter - 1).to_string()) + ")\n")
-                        .as_bytes(),
-                );
-
-                self.sp_sub1();
-                self.write_d_to_stack();
-            }
             _ => (),
         }
     }
@@ -212,6 +122,35 @@ impl CodeWriter {
         self.file.write_all("A=M\n".as_bytes());
         self.file
             .write_all(("D=D".to_string() + op + "M\n").as_bytes());
+    }
+
+    fn write_comparison_to_d(&mut self, mnemonic: &str) {
+        self.write_arithmetic_to_d("-");
+
+        self.file
+            .write_all(("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes());
+        self.label_counter += 1;
+
+        self.file
+            .write_all(("D;".to_string() + mnemonic + "\n").as_bytes());
+        self.file.write_all("@0\n".as_bytes());
+        self.file.write_all("D=A\n".as_bytes());
+        self.file
+            .write_all(("@LABEL".to_string() + &self.label_counter.to_string() + "\n").as_bytes());
+        self.label_counter += 1;
+        self.file.write_all("0;JMP\n".as_bytes());
+
+        self.file.write_all(
+            ("(LABEL".to_string() + &((self.label_counter - 2).to_string()) + ")\n").as_bytes(),
+        );
+        self.file.write_all("@1\n".as_bytes());
+        self.file.write_all("D=-A\n".as_bytes());
+        self.file.write_all(
+            ("(LABEL".to_string() + &((self.label_counter - 1).to_string()) + ")\n").as_bytes(),
+        );
+
+        self.sp_sub1();
+        self.write_d_to_stack();
     }
 
     pub fn close() {}
