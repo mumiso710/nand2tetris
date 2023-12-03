@@ -118,6 +118,8 @@ A=M
 D=M
 @0
 D=D+A
+A=D+A
+D=M
 @SP
 A=M
 M=D
@@ -128,6 +130,8 @@ A=M
 D=M
 @5
 D=D+A
+A=D+A
+D=M
 @SP
 A=M
 M=D
@@ -155,6 +159,8 @@ A=M
 D=M
 @1
 D=D+A
+A=D+A
+D=M
 @SP
 A=M
 M=D
@@ -182,6 +188,8 @@ A=M
 D=M
 @6
 D=D+A
+A=D+A
+D=M
 @SP
 A=M
 M=D
@@ -192,6 +200,8 @@ A=M
 D=M
 @6
 D=D+A
+A=D+A
+D=M
 @SP
 A=M
 M=D

@@ -81,7 +81,7 @@ impl CodeWriter {
                 "argument" => self.push("ARG", index),
                 "this" => self.push("THIS", index),
                 "that" => self.push("THAT", index),
-                _ => {}
+                _ => (),
             },
             CommandType::CPop => match segment {
                 "local" => self.pop("LCL", index),
@@ -123,6 +123,9 @@ impl CodeWriter {
         self.file
             .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
         self.file.write_all("D=D+A\n".as_bytes());
+
+        self.file.write_all("A=D+A\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
 
         self.write_d_to_stack();
     }
