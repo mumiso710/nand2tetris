@@ -139,7 +139,7 @@ impl CodeWriter {
 
         self.pop_to_d();
 
-        self.file.write_all("M=D".as_bytes());
+        self.file.write_all("M=D\n".as_bytes());
     }
 
     fn pop_to_d(&mut self) {

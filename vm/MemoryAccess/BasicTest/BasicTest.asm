@@ -15,7 +15,8 @@ M=M-1
 @SP
 A=M
 D=M
-M=D@21
+M=D
+@21
 D=A
 @SP
 A=M
@@ -39,7 +40,8 @@ M=M-1
 @SP
 A=M
 D=M
-M=D@ARG
+M=D
+@ARG
 A=M
 D=M
 @1
@@ -49,7 +51,8 @@ M=M-1
 @SP
 A=M
 D=M
-M=D@36
+M=D
+@36
 D=A
 @SP
 A=M
@@ -66,7 +69,8 @@ M=M-1
 @SP
 A=M
 D=M
-M=D@42
+M=D
+@42
 D=A
 @SP
 A=M
@@ -90,7 +94,8 @@ M=M-1
 @SP
 A=M
 D=M
-M=D@THAT
+M=D
+@THAT
 A=M
 D=M
 @2
@@ -100,7 +105,8 @@ M=M-1
 @SP
 A=M
 D=M
-M=D@510
+M=D
+@510
 D=A
 @SP
 A=M
