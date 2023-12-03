@@ -28,28 +28,12 @@ impl CodeWriter {
     pub fn write_arithmetic(&mut self, command: &str) {
         match command {
             "add" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D+M\n".as_bytes());
+                self.write_arithmetic_to_d("+");
                 self.sp_sub1();
                 self.write_d_to_stack();
             }
             "sub" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D-M\n".as_bytes());
+                self.write_arithmetic_to_d("-");
                 self.sp_sub1();
                 self.write_d_to_stack()
             }
@@ -70,41 +54,17 @@ impl CodeWriter {
                 self.sp_add1();
             }
             "and" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D&M\n".as_bytes());
+                self.write_arithmetic_to_d("&");
                 self.sp_sub1();
                 self.write_d_to_stack();
             }
             "or" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D|M\n".as_bytes());
+                self.write_arithmetic_to_d("|");
                 self.sp_sub1();
                 self.write_d_to_stack();
             }
             "eq" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D-M\n".as_bytes());
+                self.write_arithmetic_to_d("-");
 
                 // if D-M = JMP
                 self.file.write_all(
@@ -136,15 +96,7 @@ impl CodeWriter {
                 self.write_d_to_stack();
             }
             "gt" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D-M\n".as_bytes());
+                self.write_arithmetic_to_d("-");
 
                 // if D-M = JMP
                 self.file.write_all(
@@ -176,15 +128,7 @@ impl CodeWriter {
                 self.write_d_to_stack();
             }
             "lt" => {
-                self.sp_sub1();
-                self.sp_sub1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=M\n".as_bytes());
-                self.sp_add1();
-                self.file.write_all("@SP\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
-                self.file.write_all("D=D-M\n".as_bytes());
+                self.write_arithmetic_to_d("-");
 
                 // if D-M = JMP
                 self.file.write_all(
@@ -255,6 +199,19 @@ impl CodeWriter {
         self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
         self.sp_add1();
+    }
+
+    fn write_arithmetic_to_d(&mut self, op: &str) {
+        self.sp_sub1();
+        self.sp_sub1();
+        self.file.write_all("@SP\n".as_bytes());
+        self.file.write_all("A=M\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+        self.sp_add1();
+        self.file.write_all("@SP\n".as_bytes());
+        self.file.write_all("A=M\n".as_bytes());
+        self.file
+            .write_all(("D=D".to_string() + op + "M\n").as_bytes());
     }
 
     pub fn close() {}
