@@ -81,6 +81,8 @@ impl CodeWriter {
                 "argument" => self.push("ARG", index),
                 "this" => self.push("THIS", index),
                 "that" => self.push("THAT", index),
+                "pointer" => self.push("THAT", index),
+                "temp" => self.push("THAT", index),
                 _ => (),
             },
             CommandType::CPop => match segment {
@@ -88,6 +90,8 @@ impl CodeWriter {
                 "argument" => self.pop("ARG", index),
                 "this" => self.pop("THIS", index),
                 "that" => self.pop("THAT", index),
+                "pointer" => self.push("THAT", index),
+                "temp" => self.push("THAT", index),
                 _ => (),
             },
             _ => (),
@@ -115,38 +119,65 @@ impl CodeWriter {
     }
 
     fn push(&mut self, dest: &str, offset: usize) {
-        self.file
-            .write_all(("@".to_string() + dest + "\n").as_bytes()); // A=LCL
-        self.file.write_all("D=M\n".as_bytes());
+        match dest {
+            "pointer" | "temp" => {
+                let address = if dest == "pointer" { 3 } else { 5 };
 
-        self.file
-            .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
-        self.file.write_all("D=D+A\n".as_bytes());
+                self.file.write_all(
+                    ("@".to_string() + &(address + offset).to_string() + "\n").as_bytes(),
+                );
+                self.file.write_all("D=M\n".as_bytes());
+                self.write_d_to_stack();
+            }
+            _ => {
+                self.file
+                    .write_all(("@".to_string() + dest + "\n").as_bytes());
+                self.file.write_all("D=M\n".as_bytes());
 
-        self.file.write_all("A=D\n".as_bytes());
-        self.file.write_all("D=M\n".as_bytes());
+                self.file
+                    .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
+                self.file.write_all("D=D+A\n".as_bytes());
 
-        self.write_d_to_stack();
+                self.file.write_all("A=D\n".as_bytes());
+                self.file.write_all("D=M\n".as_bytes());
+
+                self.write_d_to_stack();
+            }
+        }
     }
 
     fn pop(&mut self, dest: &str, offset: usize) {
-        self.file
-            .write_all(("@".to_string() + dest + "\n").as_bytes());
-        self.file.write_all("D=M\n".as_bytes());
+        match dest {
+            "pointer" | "temp" => {
+                let address = if dest == "pointer" { 3 } else { 5 };
 
-        self.file
-            .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
-        self.file.write_all("D=D+A\n".as_bytes());
+                self.pop_to_d();
 
-        self.file.write_all("@R13\n".as_bytes());
-        self.file.write_all("M=D\n".as_bytes());
+                self.file.write_all(
+                    ("@".to_string() + &(address + offset).to_string() + "\n").as_bytes(),
+                );
+                self.file.write_all("M=D\n".as_bytes());
+            }
+            _ => {
+                self.file
+                    .write_all(("@".to_string() + dest + "\n").as_bytes());
+                self.file.write_all("D=M\n".as_bytes());
 
-        self.pop_to_d();
+                self.file
+                    .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
+                self.file.write_all("D=D+A\n".as_bytes());
 
-        self.file.write_all("@R13\n".as_bytes());
-        self.file.write_all("A=M\n".as_bytes());
+                self.file.write_all("@R13\n".as_bytes());
+                self.file.write_all("M=D\n".as_bytes());
 
-        self.file.write_all("M=D\n".as_bytes());
+                self.pop_to_d();
+
+                self.file.write_all("@R13\n".as_bytes());
+                self.file.write_all("A=M\n".as_bytes());
+
+                self.file.write_all("M=D\n".as_bytes());
+            }
+        }
     }
 
     fn pop_to_d(&mut self) {
