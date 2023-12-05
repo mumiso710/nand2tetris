@@ -117,7 +117,6 @@ impl CodeWriter {
     fn push(&mut self, dest: &str, offset: usize) {
         self.file
             .write_all(("@".to_string() + dest + "\n").as_bytes()); // A=LCL
-        self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("D=M\n".as_bytes());
 
         self.file
@@ -132,7 +131,6 @@ impl CodeWriter {
     fn pop(&mut self, dest: &str, offset: usize) {
         self.file
             .write_all(("@".to_string() + dest + "\n").as_bytes());
-        self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("D=M\n".as_bytes());
 
         self.file
