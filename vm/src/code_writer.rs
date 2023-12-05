@@ -5,6 +5,7 @@ use crate::parser::CommandType;
 
 pub struct CodeWriter {
     file: File,
+    filename: String,
     label_counter: usize,
 }
 
@@ -13,6 +14,7 @@ impl CodeWriter {
         match File::create(filename) {
             Ok(file) => Ok(CodeWriter {
                 file,
+                filename: filename.to_string(),
                 label_counter: 0,
             }),
             Err(e) => Err(e),
@@ -83,6 +85,7 @@ impl CodeWriter {
                 "that" => self.push("THAT", index),
                 "pointer" => self.push("pointer", index),
                 "temp" => self.push("temp", index),
+                "static" => self.push("static", index),
                 _ => (),
             },
             CommandType::CPop => match segment {
@@ -92,6 +95,7 @@ impl CodeWriter {
                 "that" => self.pop("THAT", index),
                 "pointer" => self.pop("pointer", index),
                 "temp" => self.pop("temp", index),
+                "static" => self.pop("static", index),
                 _ => (),
             },
             _ => (),
@@ -121,10 +125,20 @@ impl CodeWriter {
     fn push(&mut self, dest: &str, offset: usize) {
         match dest {
             "pointer" | "temp" => {
-                let address = if dest == "pointer" { 3 } else { 5 };
+                let base_address = if dest == "pointer" { 3 } else { 5 };
 
                 self.file.write_all(
-                    ("@".to_string() + &((address + offset).to_string()) + "\n").as_bytes(),
+                    ("@".to_string() + &((base_address + offset).to_string()) + "\n").as_bytes(),
+                );
+                self.file.write_all("D=M\n".as_bytes());
+                self.write_d_to_stack();
+            }
+            "static" => {
+                let base_address = 16;
+
+                self.file.write_all(
+                    ("@".to_string() + &self.filename + "." + &offset.to_string() + "\n")
+                        .as_bytes(),
                 );
                 self.file.write_all("D=M\n".as_bytes());
                 self.write_d_to_stack();
@@ -149,12 +163,23 @@ impl CodeWriter {
     fn pop(&mut self, dest: &str, offset: usize) {
         match dest {
             "pointer" | "temp" => {
-                let address = if dest == "pointer" { 3 } else { 5 };
+                let base_address = if dest == "pointer" { 3 } else { 5 };
 
                 self.pop_to_d();
 
                 self.file.write_all(
-                    ("@".to_string() + &((address + offset).to_string()) + "\n").as_bytes(),
+                    ("@".to_string() + &((base_address + offset).to_string()) + "\n").as_bytes(),
+                );
+                self.file.write_all("M=D\n".as_bytes());
+            }
+            "static" => {
+                let base_address = 16;
+
+                self.pop_to_d();
+
+                self.file.write_all(
+                    ("@".to_string() + &self.filename + "." + &offset.to_string() + "\n")
+                        .as_bytes(),
                 );
                 self.file.write_all("M=D\n".as_bytes());
             }
