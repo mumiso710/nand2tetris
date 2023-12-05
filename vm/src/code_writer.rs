@@ -166,14 +166,13 @@ impl CodeWriter {
     }
 
     fn write_arithmetic_to_d(&mut self, op: &str) {
+        self.sp_sub1();
         self.pop_to_d();
-
+        self.sp_add1();
         self.file.write_all("@SP\n".as_bytes());
         self.file.write_all("A=M\n".as_bytes());
         self.file
             .write_all(("D=D".to_string() + op + "M\n").as_bytes());
-
-        self.sp_sub1();
     }
 
     fn write_comparison_to_d(&mut self, mnemonic: &str) {
