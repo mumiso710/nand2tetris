@@ -135,8 +135,7 @@ impl CodeWriter {
 
         self.file
             .write_all(("@".to_string() + &offset.to_string() + "\n").as_bytes());
-        self.file.write_all("A=D+A\n".as_bytes());
-        self.file.write_all("D=M\n".as_bytes());
+        self.file.write_all("D=D+A\n".as_bytes());
 
         self.file.write_all("@R13\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
