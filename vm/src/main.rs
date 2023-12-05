@@ -12,7 +12,6 @@ fn main() {
 
     let in_filename = &args[1];
     let out_filename = in_filename.replace("vm", "asm");
-    println!("{out_filename}");
 
     let mut parser = Parser::new(&in_filename).unwrap();
     let mut code_writer = CodeWriter::new(&out_filename).unwrap();

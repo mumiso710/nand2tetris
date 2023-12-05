@@ -11,10 +11,16 @@ pub struct CodeWriter {
 
 impl CodeWriter {
     pub fn new(filename: &str) -> Result<Self, io::Error> {
+        let striped_filename = filename
+            .replace(".asm", "")
+            .rsplit('/')
+            .next()
+            .unwrap()
+            .to_string();
         match File::create(filename) {
             Ok(file) => Ok(CodeWriter {
                 file,
-                filename: filename.to_string(),
+                filename: striped_filename,
                 label_counter: 0,
             }),
             Err(e) => Err(e),
