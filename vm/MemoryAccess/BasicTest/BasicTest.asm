@@ -131,13 +131,13 @@ A=M
 M=D
 @SP
 M=M+1
-@11
-D=M
+@SP
+M=M-1
 @SP
 A=M
+D=M
+@11
 M=D
-@SP
-M=M+1
 @LCL
 D=M
 @0
