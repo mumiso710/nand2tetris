@@ -131,11 +131,7 @@ A=M
 M=D
 @SP
 M=M+1
-@THAT
-D=M
-@6
-D=D+A
-A=D
+@11
 D=M
 @SP
 A=M
@@ -273,11 +269,7 @@ A=M
 M=D
 @SP
 M=M+1
-@THAT
-D=M
-@6
-D=D+A
-A=D
+@11
 D=M
 @SP
 A=M
