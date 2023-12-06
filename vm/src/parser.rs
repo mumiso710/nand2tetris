@@ -24,7 +24,12 @@ impl Parser {
                 let reader = BufReader::new(file);
                 let commands: Vec<String> = reader
                     .lines()
-                    .map(|line| line.unwrap().replace("\n", ""))
+                    .map(|line| {
+                        let line = line.unwrap().trim().to_string();
+                        let removed_inline_comment =
+                            line.split("//").next().unwrap_or("").trim().to_string();
+                        removed_inline_comment
+                    })
                     .filter(|line| !Parser::is_commnet_or_whitespace(&line))
                     .collect();
                 Ok(Parser {

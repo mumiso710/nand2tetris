@@ -23,6 +23,9 @@ fn main() {
             CommandType::CPush | CommandType::CPop => {
                 code_writer.write_push_pop(parser.command_type(), &parser.arg1(), parser.arg2())
             }
+            CommandType::CGoto => code_writer.write_goto(&parser.arg1()),
+            CommandType::CLabel => code_writer.write_label(&parser.arg1()),
+            CommandType::CIf => code_writer.write_if(&parser.arg1()),
             _ => (),
         }
     }

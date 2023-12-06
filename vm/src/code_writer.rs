@@ -33,6 +33,8 @@ impl CodeWriter {
         Ok(())
     }
 
+    fn write_init(&mut self) {}
+
     pub fn write_arithmetic(&mut self, command: &str) {
         match command {
             "add" => {
@@ -107,6 +109,29 @@ impl CodeWriter {
             _ => (),
         }
     }
+
+    pub fn write_label(&mut self, label_name: &str) {
+        self.file
+            .write_all(("(".to_string() + label_name + ")\n").as_bytes());
+        self.label_counter += 1;
+    }
+
+    pub fn write_goto(&mut self, label_name: &str) {
+        self.file
+            .write_all(("@".to_string() + label_name + "\n").as_bytes());
+        self.file.write_all("0;JMP\n".as_bytes());
+    }
+
+    pub fn write_if(&mut self, label_name: &str) {
+        self.pop_to_d();
+        self.file
+            .write_all(("@".to_string() + label_name + "\n").as_bytes());
+        self.file.write_all("D;JNE\n".as_bytes());
+    }
+
+    pub fn write_call(&mut self) {}
+    pub fn write_return(&mut self) {}
+    pub fn write_function(&mut self) {}
 
     fn add1(&mut self, dest: &str) {
         self.file
