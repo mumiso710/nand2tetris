@@ -130,8 +130,17 @@ impl CodeWriter {
     }
 
     pub fn write_call(&mut self) {}
-    pub fn write_return(&mut self) {}
-    pub fn write_function(&mut self) {}
+    pub fn write_return(&mut self) {
+        self.file.write_all("@FRAME\n".as_bytes());
+    }
+    pub fn write_function(&mut self, func_name: &str, local_num: usize) {
+        self.file
+            .write_all(("(".to_string() + func_name + ")\n").as_bytes());
+        self.file.write_all("D=0\n".as_bytes());
+        for _ in 0..local_num {
+            self.write_d_to_stack();
+        }
+    }
 
     fn add1(&mut self, dest: &str) {
         self.file
