@@ -132,7 +132,9 @@ D=M
 A=M
 M=D
 @ARG
-A=MA=A+1D=A
+A=M
+A=A+1
+D=A
 @SP
 M=D
 @FRAME

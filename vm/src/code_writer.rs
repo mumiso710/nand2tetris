@@ -149,8 +149,8 @@ impl CodeWriter {
         self.write_d_to_pointed("ARG");
 
         self.file.write_all("@ARG\n".as_bytes());
-        self.file.write_all("A=M".as_bytes());
-        self.file.write_all("A=A+1".as_bytes());
+        self.file.write_all("A=M\n".as_bytes());
+        self.file.write_all("A=A+1\n".as_bytes());
         self.file.write_all("D=A\n".as_bytes());
 
         self.write_from_d("SP");
