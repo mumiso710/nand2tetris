@@ -130,9 +130,6 @@ impl CodeWriter {
     }
 
     pub fn write_call(&mut self) {}
-    pub fn write_return(&mut self) {
-        self.file.write_all("@FRAME\n".as_bytes());
-    }
     pub fn write_function(&mut self, func_name: &str, local_num: usize) {
         self.file
             .write_all(("(".to_string() + func_name + ")\n").as_bytes());
@@ -140,6 +137,43 @@ impl CodeWriter {
         for _ in 0..local_num {
             self.write_d_to_stack();
         }
+    }
+
+    pub fn write_return(&mut self) {
+        self.file.write_all("@LCL\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+        self.file.write_all("@FRAME\n".as_bytes());
+        self.file.write_all("M=D\n".as_bytes());
+
+        self.pop_to_d();
+        self.write_d_to_pointed("ARG");
+
+        self.write_pointed_to_d("ARG");
+        self.write_pointed_to_d("D=D+1;");
+
+        self.write_from_d("SP");
+
+        self.sub1("FRAME");
+        self.write_d_to_pointed("FRAME");
+        self.write_from_d("THAT");
+
+        self.sub1("FRAME");
+        self.write_d_to_pointed("FRAME");
+        self.write_from_d("THIS");
+
+        self.sub1("FRAME");
+        self.write_d_to_pointed("FRAME");
+        self.write_from_d("ARG");
+
+        self.sub1("FRAME");
+        self.write_d_to_pointed("FRAME");
+        self.write_from_d("LCL");
+
+        self.sub1("FRAME");
+        self.write_d_to_pointed("FRAME");
+        self.write_from_d("RET");
+
+        self.write_goto("RET");
     }
 
     fn add1(&mut self, dest: &str) {
@@ -237,26 +271,56 @@ impl CodeWriter {
 
                 self.pop_to_d();
 
-                self.file.write_all("@R13\n".as_bytes());
-                self.file.write_all("A=M\n".as_bytes());
+                // self.file.write_all("@R13\n".as_bytes());
+                // self.file.write_all("A=M\n".as_bytes());
 
-                self.file.write_all("M=D\n".as_bytes());
+                // self.file.write_all("M=D\n".as_bytes());
+
+                self.write_d_to_pointed("@R13");
             }
         }
     }
 
     fn pop_to_d(&mut self) {
         self.sp_sub1();
-        self.file.write_all("@SP\n".as_bytes());
+        // self.file.write_all("@SP\n".as_bytes());
+        // self.file.write_all("A=M\n".as_bytes());
+        // self.file.write_all("D=M\n".as_bytes());
+        self.write_pointed_to_d("SP");
+    }
+
+    fn write_d_to_stack(&mut self) {
+        // self.file.write_all("@SP\n".as_bytes());
+        // self.file.write_all("A=M\n".as_bytes());
+        // self.file.write_all("M=D\n".as_bytes());;
+        self.write_d_to_pointed("SP");
+        self.sp_add1();
+    }
+
+    fn write_to_d(&mut self, from: &str) {
+        self.file
+            .write_all(("@".to_string() + from + "\n").as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+    }
+
+    fn write_from_d(&mut self, to: &str) {
+        self.file
+            .write_all(("@".to_string() + to + "\n").as_bytes());
+        self.file.write_all("M=D\n".as_bytes());
+    }
+
+    fn write_pointed_to_d(&mut self, from: &str) {
+        self.file
+            .write_all(("@".to_string() + from + "\n").as_bytes());
         self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("D=M\n".as_bytes());
     }
 
-    fn write_d_to_stack(&mut self) {
-        self.file.write_all("@SP\n".as_bytes());
+    fn write_d_to_pointed(&mut self, to: &str) {
+        self.file
+            .write_all(("@".to_string() + to + "\n").as_bytes());
         self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
-        self.sp_add1();
     }
 
     fn write_arithmetic_to_d(&mut self, op: &str) {
