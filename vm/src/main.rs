@@ -26,7 +26,9 @@ fn main() {
             CommandType::CGoto => code_writer.write_goto(&parser.arg1()),
             CommandType::CLabel => code_writer.write_label(&parser.arg1()),
             CommandType::CIf => code_writer.write_if(&parser.arg1()),
-            _ => (),
+            CommandType::CFunction => code_writer.write_function(&parser.arg1(), parser.arg2()),
+            CommandType::CReturn => code_writer.write_return(),
+            CommandType::CCall => (),
         }
     }
 

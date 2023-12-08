@@ -208,8 +208,6 @@ impl CodeWriter {
                 self.write_d_to_stack();
             }
             "static" => {
-                let base_address = 16;
-
                 self.file.write_all(
                     ("@".to_string() + &self.filename + "." + &offset.to_string() + "\n")
                         .as_bytes(),
@@ -247,8 +245,6 @@ impl CodeWriter {
                 self.file.write_all("M=D\n".as_bytes());
             }
             "static" => {
-                let base_address = 16;
-
                 self.pop_to_d();
 
                 self.file.write_all(
@@ -271,28 +267,17 @@ impl CodeWriter {
 
                 self.pop_to_d();
 
-                // self.file.write_all("@R13\n".as_bytes());
-                // self.file.write_all("A=M\n".as_bytes());
-
-                // self.file.write_all("M=D\n".as_bytes());
-
-                self.write_d_to_pointed("@R13");
+                self.write_d_to_pointed("R13");
             }
         }
     }
 
     fn pop_to_d(&mut self) {
         self.sp_sub1();
-        // self.file.write_all("@SP\n".as_bytes());
-        // self.file.write_all("A=M\n".as_bytes());
-        // self.file.write_all("D=M\n".as_bytes());
         self.write_pointed_to_d("SP");
     }
 
     fn write_d_to_stack(&mut self) {
-        // self.file.write_all("@SP\n".as_bytes());
-        // self.file.write_all("A=M\n".as_bytes());
-        // self.file.write_all("M=D\n".as_bytes());;
         self.write_d_to_pointed("SP");
         self.sp_add1();
     }
