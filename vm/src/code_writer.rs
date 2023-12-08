@@ -154,23 +154,23 @@ impl CodeWriter {
         self.write_from_d("SP");
 
         self.sub1("FRAME");
-        self.write_d_to_pointed("FRAME");
+        self.write_pointed_to_d("FRAME");
         self.write_from_d("THAT");
 
         self.sub1("FRAME");
-        self.write_d_to_pointed("FRAME");
+        self.write_pointed_to_d("FRAME");
         self.write_from_d("THIS");
 
         self.sub1("FRAME");
-        self.write_d_to_pointed("FRAME");
+        self.write_pointed_to_d("FRAME");
         self.write_from_d("ARG");
 
         self.sub1("FRAME");
-        self.write_d_to_pointed("FRAME");
+        self.write_pointed_to_d("FRAME");
         self.write_from_d("LCL");
 
         self.sub1("FRAME");
-        self.write_d_to_pointed("FRAME");
+        self.write_pointed_to_d("FRAME");
         self.write_from_d("RET");
 
         self.write_goto("RET");
