@@ -134,9 +134,7 @@ M=D
 @ARG
 A=M
 D=M
-@D=D+1;
-A=M
-D=M
+D=D+1
 @SP
 M=D
 @FRAME
