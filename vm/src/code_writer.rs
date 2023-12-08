@@ -149,7 +149,7 @@ impl CodeWriter {
         self.write_d_to_pointed("ARG");
 
         self.write_pointed_to_d("ARG");
-        self.write_pointed_to_d("D=D+1;");
+        self.file.write_all("D=D+1\n".as_bytes());
 
         self.write_from_d("SP");
 
