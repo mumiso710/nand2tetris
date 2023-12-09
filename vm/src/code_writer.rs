@@ -176,6 +176,7 @@ impl CodeWriter {
         self.file.write_all("@RET\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
 
+        self.file.write_all("@RET\n".as_bytes());
         self.file.write_all("0;JMP\n".as_bytes());
     }
 
