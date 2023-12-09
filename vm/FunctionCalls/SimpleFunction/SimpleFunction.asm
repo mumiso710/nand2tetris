@@ -171,7 +171,6 @@ M=M-1
 A=M
 D=M
 @RET
-A=M
 M=D
 @RET
 0;JMP

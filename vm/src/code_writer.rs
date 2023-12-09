@@ -173,7 +173,8 @@ impl CodeWriter {
 
         self.sub1("FRAME");
         self.write_pointed_to_d("FRAME");
-        self.write_d_to_pointed("RET");
+        self.file.write_all("@RET\n".as_bytes());
+        self.file.write_all("M=D\n".as_bytes());
 
         self.write_goto("RET");
     }
