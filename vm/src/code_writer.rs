@@ -176,7 +176,7 @@ impl CodeWriter {
         self.file.write_all("@RET\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
 
-        self.write_goto("RET");
+        self.file.write_all("0;JMP\n".as_bytes());
     }
 
     fn add1(&mut self, dest: &str) {
