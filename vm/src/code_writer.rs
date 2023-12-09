@@ -173,7 +173,7 @@ impl CodeWriter {
 
         self.sub1("FRAME");
         self.write_pointed_to_d("FRAME");
-        self.write_from_d("RET");
+        self.write_d_to_pointed("RET");
 
         self.write_goto("RET");
     }
