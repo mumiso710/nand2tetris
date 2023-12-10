@@ -185,26 +185,26 @@ impl CodeWriter {
         self.file.write_all("D=A\n".as_bytes());
         self.write_d_to_stack();
 
-        self.write_pointed_to_d("LCL");
+        self.write_to_d("LCL");
         self.write_d_to_stack();
 
-        self.write_pointed_to_d("ARG");
+        self.write_to_d("ARG");
         self.write_d_to_stack();
 
-        self.write_pointed_to_d("THIS");
+        self.write_to_d("THIS");
         self.write_d_to_stack();
 
-        self.write_pointed_to_d("THAT");
+        self.write_to_d("THAT");
         self.write_d_to_stack();
 
-        self.write_pointed_to_d("SP");
+        self.write_to_d("SP");
         for _ in 0..(arg_num + 5) {
             self.file.write_all("D=D-1\n".as_bytes());
         }
 
         self.write_from_d("ARG");
 
-        self.write_pointed_to_d("SP");
+        self.write_to_d("SP");
         self.write_from_d("LCL");
 
         // self.write_goto(&(func_name.to_string() + &self.label_counter.to_string()));
