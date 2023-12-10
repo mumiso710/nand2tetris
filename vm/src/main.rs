@@ -51,7 +51,7 @@ fn main() {
 
 fn extrac_vm_files(dir_name: &str) -> Result<Vec<PathBuf>, std::io::Error> {
     let entries = fs::read_dir(dir_name)?;
-    let files = Vec::new();
+    let mut files = Vec::new();
 
     for entry in entries {
         let file_path = entry?.path();
