@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, fs, path::PathBuf};
 
 use parser::Parser;
 
@@ -33,4 +33,20 @@ fn main() {
     }
 
     println!("{:?}", parser.commands);
+}
+
+fn extrac_vm_files(dir_name: &str) -> Result<Vec<PathBuf>, std::io::Error> {
+    let entries = fs::read_dir(dir_name)?;
+    let files = Vec::new();
+
+    for entry in entries {
+        let file_path = entry?.path();
+        if let Some(extension) = file_path.extension() {
+            if extension == "vm" {
+                files.push(file_path);
+            }
+        }
+    }
+
+    Ok(files)
 }
