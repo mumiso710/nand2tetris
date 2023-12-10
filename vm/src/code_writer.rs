@@ -129,7 +129,6 @@ impl CodeWriter {
         self.file.write_all("D;JNE\n".as_bytes());
     }
 
-    pub fn write_call(&mut self) {}
     pub fn write_function(&mut self, func_name: &str, local_num: usize) {
         self.file
             .write_all(("(".to_string() + func_name + ")\n").as_bytes());
@@ -176,8 +175,13 @@ impl CodeWriter {
         self.file.write_all("@RET\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
 
+        self.write_goto("RET");
         self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("0;JMP\n".as_bytes());
+    }
+
+    pub fn write_call(&mut self) {
+        self.file.write_all("M=M-1\n".as_bytes());
     }
 
     fn add1(&mut self, dest: &str) {
