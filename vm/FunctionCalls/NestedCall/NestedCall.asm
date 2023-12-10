@@ -29,7 +29,7 @@ D=M
 @4
 M=D
 @Sys.main_RET
-D=M
+D=A
 @SP
 A=M
 M=D
@@ -215,7 +215,7 @@ M=D
 @SP
 M=M+1
 @Sys.add12_RET
-D=M
+D=A
 @SP
 A=M
 M=D
