@@ -28,7 +28,7 @@ fn main() {
             CommandType::CIf => code_writer.write_if(&parser.arg1()),
             CommandType::CFunction => code_writer.write_function(&parser.arg1(), parser.arg2()),
             CommandType::CReturn => code_writer.write_return(),
-            CommandType::CCall => (),
+            CommandType::CCall => code_writer.write_call(&parser.arg1(), parser.arg2()),
         }
     }
 
