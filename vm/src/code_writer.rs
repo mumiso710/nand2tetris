@@ -182,7 +182,7 @@ impl CodeWriter {
     pub fn write_call(&mut self, func_name: &str, arg_num: usize) {
         self.file
             .write_all(("@".to_string() + func_name + "_RET\n").as_bytes());
-        self.file.write_all("D=A\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
         self.write_d_to_stack();
 
         self.write_pointed_to_d("LCL");
