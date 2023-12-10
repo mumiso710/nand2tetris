@@ -28,7 +28,7 @@ A=M
 D=M
 @4
 M=D
-@Sys.main0
+@Sys.main_RET
 D=M
 @SP
 A=M
@@ -82,7 +82,9 @@ A=M
 D=M
 @LCL
 M=D
-(Sys.main0)
+@Sys.main
+0;JMP
+(Sys.main_RET)
 @SP
 M=M-1
 @SP
@@ -218,7 +220,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Sys.add122
+@Sys.add12_RET
 D=M
 @SP
 A=M
@@ -273,7 +275,9 @@ A=M
 D=M
 @LCL
 M=D
-(Sys.add122)
+@Sys.add12
+0;JMP
+(Sys.add12_RET)
 @SP
 M=M-1
 @SP

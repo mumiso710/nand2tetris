@@ -113,7 +113,7 @@ impl CodeWriter {
     pub fn write_label(&mut self, label_name: &str) {
         self.file
             .write_all(("(".to_string() + label_name + ")\n").as_bytes());
-        self.label_counter += 1;
+        // self.label_counter += 1;
     }
 
     pub fn write_goto(&mut self, label_name: &str) {
@@ -180,9 +180,8 @@ impl CodeWriter {
     }
 
     pub fn write_call(&mut self, func_name: &str, arg_num: usize) {
-        self.file.write_all(
-            ("@".to_string() + func_name + &self.label_counter.to_string() + "\n").as_bytes(),
-        );
+        self.file
+            .write_all(("@".to_string() + func_name + "_RET\n").as_bytes());
         self.file.write_all("D=M\n".as_bytes());
         self.write_d_to_stack();
 
@@ -208,7 +207,12 @@ impl CodeWriter {
         self.write_pointed_to_d("SP");
         self.write_from_d("LCL");
 
-        self.write_label(&(func_name.to_string() + &self.label_counter.to_string()));
+        // self.write_goto(&(func_name.to_string() + &self.label_counter.to_string()));
+        // self.write_goto(&(func_name.to_string() + "_RET"));
+        self.write_goto(func_name);
+
+        // self.write_label(&(func_name.to_string() + &self.label_counter.to_string()));
+        self.write_label(&(func_name.to_string() + "_RET"));
     }
 
     fn add1(&mut self, dest: &str) {
