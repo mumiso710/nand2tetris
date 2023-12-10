@@ -175,13 +175,40 @@ impl CodeWriter {
         self.file.write_all("@RET\n".as_bytes());
         self.file.write_all("M=D\n".as_bytes());
 
-        self.write_goto("RET");
         self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("0;JMP\n".as_bytes());
     }
 
-    pub fn write_call(&mut self) {
-        self.file.write_all("M=M-1\n".as_bytes());
+    pub fn write_call(&mut self, func_name: &str, arg_num: usize) {
+        self.file.write_all(
+            ("@".to_string() + func_name + &self.label_counter.to_string() + "\n").as_bytes(),
+        );
+        self.file.write_all("D=M\n".as_bytes());
+        self.write_d_to_stack();
+
+        self.write_pointed_to_d("LCL");
+        self.write_d_to_stack();
+
+        self.write_pointed_to_d("ARG");
+        self.write_d_to_stack();
+
+        self.write_pointed_to_d("THIS");
+        self.write_d_to_stack();
+
+        self.write_pointed_to_d("THAT");
+        self.write_d_to_stack();
+
+        self.write_pointed_to_d("SP");
+        for _ in 0..(arg_num + 5) {
+            self.file.write_all("D=D-1\n".as_bytes());
+        }
+
+        self.write_from_d("ARG");
+
+        self.write_pointed_to_d("SP");
+        self.write_from_d("LCL");
+
+        self.write_label(&(func_name.to_string() + &self.label_counter.to_string()));
     }
 
     fn add1(&mut self, dest: &str) {

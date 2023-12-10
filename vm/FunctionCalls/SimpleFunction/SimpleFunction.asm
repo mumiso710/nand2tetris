@@ -172,7 +172,5 @@ A=M
 D=M
 @RET
 M=D
-@RET
-0;JMP
 A=M
 0;JMP
