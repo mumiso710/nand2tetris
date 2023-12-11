@@ -172,10 +172,10 @@ impl CodeWriter {
 
         self.sub1("FRAME");
         self.write_pointed_to_d("FRAME");
-        self.file.write_all("@RET\n".as_bytes());
-        self.file.write_all("M=D\n".as_bytes());
+        // self.file.write_all("@RET\n".as_bytes());
+        // self.file.write_all("M=D\n".as_bytes());
 
-        self.file.write_all("A=M\n".as_bytes());
+        self.file.write_all("A=D\n".as_bytes());
         self.file.write_all("0;JMP\n".as_bytes());
     }
 

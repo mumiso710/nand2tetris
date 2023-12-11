@@ -170,7 +170,5 @@ M=M-1
 @FRAME
 A=M
 D=M
-@RET
-M=D
-A=M
+A=D
 0;JMP
