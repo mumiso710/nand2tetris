@@ -139,18 +139,18 @@ impl CodeWriter {
     }
 
     pub fn write_return(&mut self) {
-        self.file.write_all("@LCL\n".as_bytes());
-        self.file.write_all("D=M\n".as_bytes());
-        self.file.write_all("@FRAME\n".as_bytes());
-        self.file.write_all("M=D\n".as_bytes());
+        self.write_to_d("LCL");
+        self.write_from_d("FRAME");
 
         self.pop_to_d();
         self.write_d_to_pointed("ARG");
 
         self.file.write_all("@ARG\n".as_bytes());
-        self.file.write_all("A=M\n".as_bytes());
-        self.file.write_all("A=A+1\n".as_bytes());
-        self.file.write_all("D=A\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+        self.file.write_all("D=D+1\n".as_bytes());
+        // self.file.write_all("A=M\n".as_bytes());
+        // self.file.write_all("A=A+1\n".as_bytes());
+        // self.file.write_all("D=A\n".as_bytes());
 
         self.write_from_d("SP");
 
