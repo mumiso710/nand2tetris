@@ -142,6 +142,15 @@ impl CodeWriter {
         self.write_to_d("LCL");
         self.write_from_d("FRAME");
 
+        self.file.write_all("D=D-1\n".as_bytes());
+        self.file.write_all("D=D-1\n".as_bytes());
+        self.file.write_all("D=D-1\n".as_bytes());
+        self.file.write_all("D=D-1\n".as_bytes());
+        self.file.write_all("D=D-1\n".as_bytes());
+        self.file.write_all("A=D\n".as_bytes());
+        self.file.write_all("D=M\n".as_bytes());
+        self.write_from_d("RET");
+
         self.pop_to_d();
         self.write_d_to_pointed("ARG");
 
@@ -170,12 +179,11 @@ impl CodeWriter {
         self.write_pointed_to_d("FRAME");
         self.write_from_d("LCL");
 
-        self.sub1("FRAME");
-        self.write_pointed_to_d("FRAME");
-        // self.file.write_all("@RET\n".as_bytes());
-        // self.file.write_all("M=D\n".as_bytes());
+        // self.sub1("FRAME");
+        // self.write_pointed_to_d("FRAME");
 
-        self.file.write_all("A=D\n".as_bytes());
+        self.file.write_all("@RET\n".as_bytes());
+        self.file.write_all("A=M\n".as_bytes());
         self.file.write_all("0;JMP\n".as_bytes());
     }
 

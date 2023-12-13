@@ -123,6 +123,15 @@ M=M+1
 D=M
 @FRAME
 M=D
+D=D-1
+D=D-1
+D=D-1
+D=D-1
+D=D-1
+A=D
+D=M
+@RET
+M=D
 @SP
 M=M-1
 @SP
@@ -164,10 +173,6 @@ A=M
 D=M
 @LCL
 M=D
-@FRAME
-M=M-1
-@FRAME
+@RET
 A=M
-D=M
-A=D
 0;JMP
