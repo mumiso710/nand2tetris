@@ -7,7 +7,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Main.fibonacci_RET
+@Main.fibonacci_RET0
 D=A
 @SP
 A=M
@@ -227,7 +227,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Main.fibonacci_RET
+@Main.fibonacci_RET1
 D=A
 @SP
 A=M
@@ -278,7 +278,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main.fibonacci_RET0)
+(Main.fibonacci_RET1)
 @ARG
 D=M
 @0
@@ -316,7 +316,7 @@ A=M
 M=D
 @SP
 M=M+1
-@Main.fibonacci_RET
+@Main.fibonacci_RET2
 D=A
 @SP
 A=M
@@ -367,7 +367,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main.fibonacci_RET0)
+(Main.fibonacci_RET2)
 @SP
 M=M-1
 @SP
