@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::{self, Write};
 
 use crate::parser::CommandType;
@@ -7,6 +7,7 @@ pub struct CodeWriter {
     file: File,
     filename: String,
     label_counter: usize,
+    fn_label_counter: usize,
 }
 
 impl CodeWriter {
@@ -22,13 +23,15 @@ impl CodeWriter {
                 file,
                 filename: striped_filename,
                 label_counter: 0,
+                fn_label_counter: 0,
             }),
             Err(e) => Err(e),
         }
     }
 
     pub fn set_file_name(&mut self, filename: &str) -> Result<(), io::Error> {
-        let file = File::create(filename)?;
+        // let file = File::create(filename)?;
+        let file = OpenOptions::new().append(true).open(filename)?;
         self.file = file;
         Ok(())
     }
@@ -178,9 +181,6 @@ impl CodeWriter {
         self.sub1("FRAME");
         self.write_pointed_to_d("FRAME");
         self.write_from_d("LCL");
-
-        // self.sub1("FRAME");
-        // self.write_pointed_to_d("FRAME");
 
         self.file.write_all("@RET\n".as_bytes());
         self.file.write_all("A=M\n".as_bytes());
