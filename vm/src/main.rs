@@ -14,7 +14,7 @@ fn main() {
     let dir_name = &args[1];
 
     match extrac_vm_files(dir_name) {
-        Ok(vm_files) => {
+        Ok(mut vm_files) => {
             let out_filename = dir_name.to_string()
                 + "/"
                 + &dir_name.split("/").last().unwrap().to_string()
@@ -22,12 +22,23 @@ fn main() {
 
             let mut code_writer = CodeWriter::new(&out_filename).unwrap();
 
+            if let Some(index) = vm_files
+                .iter()
+                .position(|file| file.to_str().unwrap() == dir_name.to_string() + "/Sys.vm")
+            {
+                // 要素を取り出す
+                let removed_element = vm_files.remove(index);
+
+                // 先頭に挿入する
+                vm_files.insert(0, removed_element);
+            }
+
             for file_name in vm_files {
                 let file_name = file_name.to_str().unwrap();
-                let out_filename = dir_name.to_string()
-                    + "/"
-                    + &dir_name.split("/").last().unwrap().to_string()
-                    + ".asm";
+                // let out_filename = dir_name.to_string()
+                //     + "/"
+                //     + &dir_name.split("/").last().unwrap().to_string()
+                //     + ".asm";
 
                 let mut parser = Parser::new(&file_name).unwrap();
 
