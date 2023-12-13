@@ -35,10 +35,8 @@ fn main() {
 
             for file_name in vm_files {
                 let file_name = file_name.to_str().unwrap();
-                // let out_filename = dir_name.to_string()
-                //     + "/"
-                //     + &dir_name.split("/").last().unwrap().to_string()
-                //     + ".asm";
+
+                code_writer.set_file_name(file_name);
 
                 let mut parser = Parser::new(&file_name).unwrap();
 

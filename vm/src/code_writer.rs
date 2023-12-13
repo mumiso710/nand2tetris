@@ -31,8 +31,13 @@ impl CodeWriter {
 
     pub fn set_file_name(&mut self, filename: &str) -> Result<(), io::Error> {
         // let file = File::create(filename)?;
-        let file = OpenOptions::new().append(true).open(filename)?;
-        self.file = file;
+        let striped_filename = filename
+            .replace(".asm", "")
+            .rsplit('/')
+            .next()
+            .unwrap()
+            .to_string();
+        self.filename = striped_filename;
         Ok(())
     }
 
