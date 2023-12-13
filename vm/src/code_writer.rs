@@ -40,7 +40,12 @@ impl CodeWriter {
         Ok(())
     }
 
-    fn write_init(&mut self) {}
+    pub fn write_init(&mut self) {
+        self.file.write_all("@256\n".as_bytes());
+        self.file.write_all("D=A\n".as_bytes());
+        self.write_to_d("SP");
+        self.write_call("Sys.init", 0);
+    }
 
     pub fn write_arithmetic(&mut self, command: &str) {
         match command {
@@ -164,9 +169,6 @@ impl CodeWriter {
         self.file.write_all("@ARG\n".as_bytes());
         self.file.write_all("D=M\n".as_bytes());
         self.file.write_all("D=D+1\n".as_bytes());
-        // self.file.write_all("A=M\n".as_bytes());
-        // self.file.write_all("A=A+1\n".as_bytes());
-        // self.file.write_all("D=A\n".as_bytes());
 
         self.write_from_d("SP");
 
@@ -223,7 +225,6 @@ impl CodeWriter {
 
         self.write_goto(func_name);
 
-        // self.write_label(&(func_name.to_string() + "_RET"));
         self.file.write_all(
             ("(".to_string() + func_name + "_RET" + &self.fn_call_counter.to_string() + ")\n")
                 .as_bytes(),

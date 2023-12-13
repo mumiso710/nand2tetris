@@ -21,6 +21,7 @@ fn main() {
                 + ".asm";
 
             let mut code_writer = CodeWriter::new(&out_filename).unwrap();
+            code_writer.write_init();
 
             if let Some(index) = vm_files
                 .iter()
