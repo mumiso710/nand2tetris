@@ -78,7 +78,7 @@ D=M
 M=D
 @Sys.main
 0;JMP
-(Sys.main_RET)
+(Sys.main_RET0)
 @SP
 M=M-1
 @SP
@@ -265,7 +265,7 @@ D=M
 M=D
 @Sys.add12
 0;JMP
-(Sys.add12_RET)
+(Sys.add12_RET0)
 @SP
 M=M-1
 @SP

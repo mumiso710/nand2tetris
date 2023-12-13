@@ -58,7 +58,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main.fibonacci_RET)
+(Main.fibonacci_RET0)
 (END)
 @END
 0;JMP
@@ -278,7 +278,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main.fibonacci_RET)
+(Main.fibonacci_RET0)
 @ARG
 D=M
 @0
@@ -367,7 +367,7 @@ D=M
 M=D
 @Main.fibonacci
 0;JMP
-(Main.fibonacci_RET)
+(Main.fibonacci_RET0)
 @SP
 M=M-1
 @SP

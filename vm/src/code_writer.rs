@@ -7,7 +7,7 @@ pub struct CodeWriter {
     file: File,
     filename: String,
     label_counter: usize,
-    fn_label_counter: usize,
+    fn_call_counter: usize,
 }
 
 impl CodeWriter {
@@ -23,7 +23,7 @@ impl CodeWriter {
                 file,
                 filename: striped_filename,
                 label_counter: 0,
-                fn_label_counter: 0,
+                fn_call_counter: 0,
             }),
             Err(e) => Err(e),
         }
@@ -217,7 +217,11 @@ impl CodeWriter {
 
         self.write_goto(func_name);
 
-        self.write_label(&(func_name.to_string() + "_RET"));
+        // self.write_label(&(func_name.to_string() + "_RET"));
+        self.file.write_all(
+            ("(".to_string() + func_name + "_RET" + &self.fn_call_counter.to_string() + ")\n")
+                .as_bytes(),
+        );
     }
 
     fn add1(&mut self, dest: &str) {
