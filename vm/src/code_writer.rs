@@ -30,9 +30,8 @@ impl CodeWriter {
     }
 
     pub fn set_file_name(&mut self, filename: &str) -> Result<(), io::Error> {
-        // let file = File::create(filename)?;
         let striped_filename = filename
-            .replace(".asm", "")
+            .replace(".vm", "")
             .rsplit('/')
             .next()
             .unwrap()
