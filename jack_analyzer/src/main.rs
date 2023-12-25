@@ -2,14 +2,12 @@ mod jack_tokenizer;
 
 use std::{env, ops::Deref, process};
 
+use jack_tokenizer::JackTokenizer;
+
 fn main() {
     let target_name = get_target();
 
-    if is_file(&target_name) {
-        println!("is file");
-    } else {
-        println!("is not file");
-    }
+    if let tokenizer = JackTokenizer::new(&target_name) {};
 }
 
 fn get_target() -> String {
