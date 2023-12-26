@@ -1,7 +1,7 @@
 use std::{
     error::Error,
     fs::{self, File},
-    io::{self, BufRead, BufReader},
+    io::{self, BufRead, BufReader, Write},
 };
 
 pub struct JackTokenizer {
@@ -64,25 +64,25 @@ pub enum Keywords {
 
 #[derive(Debug)]
 pub enum Symbols {
-    LCurly,
-    RCurly,
-    LParen,
-    RParen,
-    LSquare,
-    RSquare,
-    Period,
-    Comma,
-    Semicolon,
-    Plus,
-    Minus,
-    Mult,
-    Div,
-    And,
-    Or,
-    Less,
-    Greater,
-    Eq,
-    Not,
+    LCurly(char),
+    RCurly(char),
+    LParen(char),
+    RParen(char),
+    LSquare(char),
+    RSquare(char),
+    Period(char),
+    Comma(char),
+    Semicolon(char),
+    Plus(char),
+    Minus(char),
+    Mult(char),
+    Div(char),
+    And(char),
+    Or(char),
+    Less(char),
+    Greater(char),
+    Eq(char),
+    Not(char),
 }
 
 #[derive(Debug)]
@@ -233,25 +233,25 @@ impl JackTokenizer {
 
     fn make_symbol_token(symbol: char) -> Token {
         match symbol {
-            '{' => Token::Symbol(Symbols::LCurly),
-            '}' => Token::Symbol(Symbols::RCurly),
-            '(' => Token::Symbol(Symbols::LParen),
-            ')' => Token::Symbol(Symbols::RParen),
-            '[' => Token::Symbol(Symbols::LSquare),
-            ']' => Token::Symbol(Symbols::RSquare),
-            '.' => Token::Symbol(Symbols::Period),
-            ',' => Token::Symbol(Symbols::Comma),
-            ';' => Token::Symbol(Symbols::Semicolon),
-            '+' => Token::Symbol(Symbols::Plus),
-            '-' => Token::Symbol(Symbols::Minus),
-            '*' => Token::Symbol(Symbols::Mult),
-            '/' => Token::Symbol(Symbols::Div),
-            '&' => Token::Symbol(Symbols::And),
-            '|' => Token::Symbol(Symbols::Or),
-            '<' => Token::Symbol(Symbols::Less),
-            '>' => Token::Symbol(Symbols::Greater),
-            '=' => Token::Symbol(Symbols::Eq),
-            '~' => Token::Symbol(Symbols::Not),
+            '{' => Token::Symbol(Symbols::LCurly('{')),
+            '}' => Token::Symbol(Symbols::RCurly('}')),
+            '(' => Token::Symbol(Symbols::LParen('(')),
+            ')' => Token::Symbol(Symbols::RParen(')')),
+            '[' => Token::Symbol(Symbols::LSquare('[')),
+            ']' => Token::Symbol(Symbols::RSquare(']')),
+            '.' => Token::Symbol(Symbols::Period('.')),
+            ',' => Token::Symbol(Symbols::Comma(',')),
+            ';' => Token::Symbol(Symbols::Semicolon(';')),
+            '+' => Token::Symbol(Symbols::Plus('+')),
+            '-' => Token::Symbol(Symbols::Minus('-')),
+            '*' => Token::Symbol(Symbols::Mult('*')),
+            '/' => Token::Symbol(Symbols::Div('/')),
+            '&' => Token::Symbol(Symbols::And('&')),
+            '|' => Token::Symbol(Symbols::Or('|')),
+            '<' => Token::Symbol(Symbols::Less('<')),
+            '>' => Token::Symbol(Symbols::Greater('>')),
+            '=' => Token::Symbol(Symbols::Eq('=')),
+            '~' => Token::Symbol(Symbols::Not('~')),
             _ => panic!("this is not symbol character"),
         }
     }
@@ -283,8 +283,76 @@ impl JackTokenizer {
         }
     }
 
-    fn create_token_xml_file() {}
+    fn create_token_xml_file(&self, file_name: &str) -> Result<(), io::Error> {
+        let mut file = File::create(file_name)?;
+        file.write_all("<token>\n".as_bytes())?;
+        for token in &self.tokens {
+            match token {
+                Token::Keyword(keyword) => {
+                    let keyword = JackTokenizer::keywords_to_string(keyword);
+                    file.write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
+                }
+                Token::Symbol(symbol) => {
+                    let c = JackTokenizer::symbols_to_char(symbol);
+                    file.write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
+                }
+                Token::IntegerConstant(num) => (),
+                Token::StringConstant(s) => (),
+                Token::Identifier(var_name) => (),
+            }
+        }
+        Ok(())
+    }
 
+    fn symbols_to_char(symbol: &Symbols) -> char {
+        match symbol {
+            Symbols::LCurly(c)
+            | Symbols::RCurly(c)
+            | Symbols::RParen(c)
+            | Symbols::LParen(c)
+            | Symbols::RSquare(c)
+            | Symbols::LSquare(c)
+            | Symbols::Period(c)
+            | Symbols::Comma(c)
+            | Symbols::Semicolon(c)
+            | Symbols::Plus(c)
+            | Symbols::Minus(c)
+            | Symbols::Mult(c)
+            | Symbols::Div(c)
+            | Symbols::And(c)
+            | Symbols::Or(c)
+            | Symbols::Less(c)
+            | Symbols::Greater(c)
+            | Symbols::Eq(c)
+            | Symbols::Not(c) => *c,
+        }
+    }
+
+    fn keywords_to_string(keyword: &Keywords) -> String {
+        match keyword {
+            Keywords::Class => "class".to_string(),
+            Keywords::Constructor => "constructor".to_string(),
+            Keywords::Function => "function".to_string(),
+            Keywords::Method => "method".to_string(),
+            Keywords::Field => "field".to_string(),
+            Keywords::Static => "static".to_string(),
+            Keywords::Var => "var".to_string(),
+            Keywords::Int => "int".to_string(),
+            Keywords::Char => "char".to_string(),
+            Keywords::Boolean => "boolean".to_string(),
+            Keywords::Void => "void".to_string(),
+            Keywords::True => "true".to_string(),
+            Keywords::False => "false".to_string(),
+            Keywords::Null => "null".to_string(),
+            Keywords::This => "this".to_string(),
+            Keywords::Let => "let".to_string(),
+            Keywords::Do => "do".to_string(),
+            Keywords::If => "if".to_string(),
+            Keywords::Else => "else".to_string(),
+            Keywords::While => "while".to_string(),
+            Keywords::Return => "return".to_string(),
+        }
+    }
     pub fn token_type(&self) -> Token {
         todo!();
     }
