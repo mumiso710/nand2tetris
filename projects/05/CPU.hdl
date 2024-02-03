@@ -32,25 +32,5 @@ CHIP CPU {
         pc[15];          // Address of next instruction
 
     PARTS:
-    And(a=instruction[3], b=instruction[15], out=writeM);
-    And(a=instruction[15], b=instruction[5], out=instCAndLoadA);
-    Not(in=instruction[15], out=instructionA);
-    Or(a=instructionA, b=instCAndLoadA, out=loadA);
-    Mux16(a=instruction, b=outALU, sel=instruction[15], out=muxInstructionALU);
-    ARegister(in=muxInstructionALU, load=loadA, out=outA, out[0..14]=addressM); // A Register
-    Mux16(a=outA, b=inM, sel=instruction[12], out=muxAM);
-    PC(in=outA, load=jump, inc=inc, reset=reset, out[0..14]=pc);
-    ALU(x=outD, y=muxAM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outALU, out=outM, zr=zr, ng=ng);
-    And(a=ng, b=instruction[2], out=jump1);
-    And(a=zr, b=instruction[1], out=jump2);
-    Or(a=zr, b=ng, out=zrNg);
-    Not(in=zrNg, out=pos);
-    And(a=pos, b=instruction[0], out=jump3);
-    Or(a=jump1, b=jump2, out=jump12);
-    And(a=jump12, b=instruction[15], out=jump12inst);
-    And(a=jump3, b=instruction[15], out=jump3inst);
-    Or(a=jump12inst, b=jump3inst, out=jump);
-    Not(in=jump, out=inc);
-    And(a=instruction[15], b=instruction[4], out=loadD);
-    DRegister(in=outALU, load=loadD, out=outD); // D Register
+    //// Replace this comment with your code.
 }

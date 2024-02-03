@@ -4,7 +4,7 @@
 // File name: projects/01/Mux.hdl
 /** 
  * Multiplexor:
- * out = ((sel == 0), a, b)
+ * if (sel == 0) out = a, else out = b
  */
 CHIP Mux {
     IN a, b, sel;

@@ -5,6 +5,3 @@ Project 0 guidelines in your course website.
 It is possible that the Nand to Tetris course that
 you are taking does not require a project 0 submission.
 That's OK.
-
-(this version of the Nand to Tetris software suite is 2.7)
-

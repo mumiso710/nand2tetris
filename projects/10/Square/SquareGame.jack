@@ -2,6 +2,7 @@
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
 // File name: projects/10/Square/SquareGame.jack
+
 // (same as projects/09/Square/SquareGame.jack)
 
 /**
@@ -75,3 +76,6 @@ class SquareGame {
      return;
    }
 }
+
+
+
