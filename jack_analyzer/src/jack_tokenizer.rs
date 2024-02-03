@@ -283,9 +283,9 @@ impl JackTokenizer {
         }
     }
 
-    fn create_token_xml_file(&self, file_name: &str) -> Result<(), io::Error> {
+    pub fn create_token_xml_file(&self, file_name: &str) -> Result<(), io::Error> {
         let mut file = File::create(file_name)?;
-        file.write_all("<token>\n".as_bytes())?;
+        file.write_all("<tokens>\n".as_bytes())?;
         for token in &self.tokens {
             match token {
                 Token::Keyword(keyword) => {
@@ -296,15 +296,29 @@ impl JackTokenizer {
                     let c = JackTokenizer::symbols_to_char(symbol);
                     file.write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
                 }
-                Token::IntegerConstant(num) => (),
-                Token::StringConstant(s) => (),
-                Token::Identifier(var_name) => (),
+                Token::IntegerConstant(num) => {
+                    file.write_all(
+                        format!("<integerConstant> {} </integerConstant>\n", num).as_bytes(),
+                    )?;
+                }
+                Token::StringConstant(s) => {
+                    file.write_all(
+                        format!("<stringConstant> {} </stringConstant>\n", s.to_uppercase())
+                            .as_bytes(),
+                    )?;
+                }
+                Token::Identifier(var_name) => {
+                    file.write_all(
+                        format!("<identifier> {} </identifier>\n", var_name).as_bytes(),
+                    )?;
+                }
             }
         }
+        file.write_all("</tokens>\n".as_bytes())?;
         Ok(())
     }
 
-    fn symbols_to_char(symbol: &Symbols) -> char {
+    fn symbols_to_char(symbol: &Symbols) -> String {
         match symbol {
             Symbols::LCurly(c)
             | Symbols::RCurly(c)
@@ -321,10 +335,10 @@ impl JackTokenizer {
             | Symbols::Div(c)
             | Symbols::And(c)
             | Symbols::Or(c)
-            | Symbols::Less(c)
-            | Symbols::Greater(c)
             | Symbols::Eq(c)
-            | Symbols::Not(c) => *c,
+            | Symbols::Not(c) => c.to_string(),
+            Symbols::Less(_) => "&lt;".to_string(),
+            Symbols::Greater(_) => "&gt;".to_string(),
         }
     }
 
@@ -353,6 +367,11 @@ impl JackTokenizer {
             Keywords::Return => "return".to_string(),
         }
     }
+
+    fn integer_constant_to_num(num: &Keywords) -> i32 {
+        todo!();
+    }
+
     pub fn token_type(&self) -> Token {
         todo!();
     }

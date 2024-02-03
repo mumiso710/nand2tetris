@@ -7,7 +7,12 @@ use jack_tokenizer::JackTokenizer;
 fn main() {
     let target_name = get_target();
 
-    if let tokenizer = JackTokenizer::new(&target_name) {};
+    let tokenizer = JackTokenizer::new(&target_name).unwrap_or_else(|_| {
+        eprintln!("{} does not exsit", target_name);
+        process::exit(1);
+    });
+
+    tokenizer.create_token_xml_file(&(target_name.replace(".jack", "") + "_token.xml"));
 }
 
 fn get_target() -> String {
