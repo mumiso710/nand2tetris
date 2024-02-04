@@ -23,13 +23,13 @@
     <symbol> ( </symbol>
     <parameterList>
       <keyword> int </keyword>
-      <identifier> ax </identifier>
+      <identifier> Ax </identifier>
       <symbol> , </symbol>
       <keyword> int </keyword>
-      <identifier> ay </identifier>
+      <identifier> Ay </identifier>
       <symbol> , </symbol>
       <keyword> int </keyword>
-      <identifier> asize </identifier>
+      <identifier> Asize </identifier>
     </parameterList>
     <symbol> ) </symbol>
     <subroutineBody>
@@ -41,7 +41,7 @@
           <symbol> = </symbol>
           <expression>
             <term>
-              <identifier> ax </identifier>
+              <identifier> Ax </identifier>
             </term>
           </expression>
           <symbol> ; </symbol>
@@ -52,7 +52,7 @@
           <symbol> = </symbol>
           <expression>
             <term>
-              <identifier> ay </identifier>
+              <identifier> Ay </identifier>
             </term>
           </expression>
           <symbol> ; </symbol>
@@ -63,7 +63,7 @@
           <symbol> = </symbol>
           <expression>
             <term>
-              <identifier> asize </identifier>
+              <identifier> Asize </identifier>
             </term>
           </expression>
           <symbol> ; </symbol>

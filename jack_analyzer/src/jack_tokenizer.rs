@@ -192,17 +192,35 @@ impl JackTokenizer {
             }
 
             if JackTokenizer::is_symbol(*jack_code.peek().unwrap()) && !in_string {
+                token = token.trim().to_string();
+
+                if (token == "") {
+                    continue;
+                }
+
+                if JackTokenizer::is_keyword(&token) {
+                    tokens.push(JackTokenizer::make_keyword_token(&token));
+                    token = "".to_string();
+                    continue;
+                }
+
                 if let Ok(int_value) = token.parse::<usize>() {
                     tokens.push(Token::IntegerConstant(int_value));
                     token = "".to_string();
                     continue;
                 }
+
                 tokens.push(Token::Identifier(token));
                 token = "".to_string();
                 continue;
             }
 
             if (jack_code.peek() == Some(&' ') || jack_code.peek() == Some(&'\n')) && !in_string {
+                token = token.trim().to_string();
+
+                if (token == "") {
+                    continue;
+                }
                 if JackTokenizer::is_keyword(&token) {
                     tokens.push(JackTokenizer::make_keyword_token(&token));
                     token = "".to_string();
@@ -303,8 +321,7 @@ impl JackTokenizer {
                 }
                 Token::StringConstant(s) => {
                     file.write_all(
-                        format!("<stringConstant> {} </stringConstant>\n", s.to_uppercase())
-                            .as_bytes(),
+                        format!("<stringConstant> {} </stringConstant>\n", s).as_bytes(),
                     )?;
                 }
                 Token::Identifier(var_name) => {

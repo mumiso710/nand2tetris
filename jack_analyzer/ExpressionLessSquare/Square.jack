@@ -10,10 +10,10 @@ class Square {
    field int x, y; 
    field int size; 
 
-   constructor Square new(int ax, int ay, int asize) {
-      let x = ax;
-      let y = ay;
-      let size = asize;
+   constructor Square new(int Ax, int Ay, int Asize) {
+      let x = Ax;
+      let y = Ay;
+      let size = Asize;
       do draw();
       return x;
    }
