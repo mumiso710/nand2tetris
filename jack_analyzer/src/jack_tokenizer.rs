@@ -1,7 +1,6 @@
 use std::{
-    error::Error,
     fs::{self, File},
-    io::{self, BufRead, BufReader, Write},
+    io::{self, Write},
 };
 
 pub struct JackTokenizer {
@@ -107,13 +106,13 @@ impl JackTokenizer {
         })
     }
 
-    pub fn has_more_tokens(&self) -> bool {
-        todo!()
-    }
+    // pub fn has_more_tokens(&self) -> bool {
+    //     todo!()
+    // }
 
-    pub fn advance(&self) {
-        todo!()
-    }
+    // pub fn advance(&self) {
+    // todo!()
+    // }
 
     fn remove_comments(jack_code: &String) -> String {
         // start with "//" is inline comment
@@ -194,7 +193,7 @@ impl JackTokenizer {
             if JackTokenizer::is_symbol(*jack_code.peek().unwrap()) && !in_string {
                 token = token.trim().to_string();
 
-                if (token == "") {
+                if token == "" {
                     continue;
                 }
 
@@ -218,7 +217,7 @@ impl JackTokenizer {
             if (jack_code.peek() == Some(&' ') || jack_code.peek() == Some(&'\n')) && !in_string {
                 token = token.trim().to_string();
 
-                if (token == "") {
+                if token == "" {
                     continue;
                 }
                 if JackTokenizer::is_keyword(&token) {
@@ -302,6 +301,7 @@ impl JackTokenizer {
     }
 
     pub fn create_token_xml_file(&self, file_name: &str) -> Result<(), io::Error> {
+        let file_name = file_name.replace(".jack", "") + "_token.xml";
         let mut file = File::create(file_name)?;
         file.write_all("<tokens>\n".as_bytes())?;
         for token in &self.tokens {
@@ -350,12 +350,12 @@ impl JackTokenizer {
             | Symbols::Minus(c)
             | Symbols::Mult(c)
             | Symbols::Div(c)
-            | Symbols::And(c)
             | Symbols::Or(c)
             | Symbols::Eq(c)
             | Symbols::Not(c) => c.to_string(),
             Symbols::Less(_) => "&lt;".to_string(),
             Symbols::Greater(_) => "&gt;".to_string(),
+            Symbols::And(_) => "&amp;".to_string(),
         }
     }
 
@@ -389,27 +389,27 @@ impl JackTokenizer {
         todo!();
     }
 
-    pub fn token_type(&self) -> Token {
-        todo!();
-    }
+    // pub fn token_type(&self) -> Token {
+    //     todo!();
+    // }
 
-    pub fn keyword(&self) -> Keywords {
-        todo!();
-    }
+    // pub fn keyword(&self) -> Keywords {
+    //     todo!();
+    // }
 
-    pub fn symbol(&self) -> Symbols {
-        todo!();
-    }
+    // pub fn symbol(&self) -> Symbols {
+    //     todo!();
+    // }
 
-    pub fn identifier(&self) -> Token {
-        todo!();
-    }
+    // pub fn identifier(&self) -> Token {
+    //     todo!();
+    // }
 
-    pub fn int_val(&self) -> usize {
-        todo!();
-    }
+    // pub fn int_val(&self) -> usize {
+    //     todo!();
+    // }
 
-    pub fn string_val(&self) -> String {
-        todo!();
-    }
+    // pub fn string_val(&self) -> String {
+    // todo!();
+    // }
 }

@@ -27,10 +27,8 @@ fn main() {
                 .iter()
                 .position(|file| file.to_str().unwrap() == dir_name.to_string() + "/Sys.vm")
             {
-                // 要素を取り出す
                 let removed_element = vm_files.remove(index);
 
-                // 先頭に挿入する
                 vm_files.insert(0, removed_element);
             }
 
