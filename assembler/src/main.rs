@@ -101,7 +101,6 @@ fn main() {
             }
 
             CommandType::LCommand => (),
-            _ => panic!("e"),
         }
     }
 }
