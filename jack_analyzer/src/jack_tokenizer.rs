@@ -99,20 +99,11 @@ impl JackTokenizer {
         let jack_code_without_comments = JackTokenizer::remove_comments(&jack_code);
 
         let tokens = JackTokenizer::split_to_tokens(&jack_code_without_comments);
-        println!("{:?}", tokens);
         Ok(JackTokenizer {
             tokens,
             code_index: 0,
         })
     }
-
-    // pub fn has_more_tokens(&self) -> bool {
-    //     todo!()
-    // }
-
-    // pub fn advance(&self) {
-    // todo!()
-    // }
 
     fn remove_comments(jack_code: &String) -> String {
         // start with "//" is inline comment
@@ -384,32 +375,4 @@ impl JackTokenizer {
             Keywords::Return => "return".to_string(),
         }
     }
-
-    fn integer_constant_to_num(num: &Keywords) -> i32 {
-        todo!();
-    }
-
-    // pub fn token_type(&self) -> Token {
-    //     todo!();
-    // }
-
-    // pub fn keyword(&self) -> Keywords {
-    //     todo!();
-    // }
-
-    // pub fn symbol(&self) -> Symbols {
-    //     todo!();
-    // }
-
-    // pub fn identifier(&self) -> Token {
-    //     todo!();
-    // }
-
-    // pub fn int_val(&self) -> usize {
-    //     todo!();
-    // }
-
-    // pub fn string_val(&self) -> String {
-    // todo!();
-    // }
 }

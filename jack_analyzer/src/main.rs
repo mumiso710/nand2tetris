@@ -1,17 +1,20 @@
+mod compilation_engine;
 mod jack_tokenizer;
 
 use std::{env, fs, process};
 
+use compilation_engine::CompilationEngine;
 use jack_tokenizer::JackTokenizer;
 
 fn main() {
     let target_name = get_target();
     let mut jack_files = Vec::new();
+    let mut token_files = Vec::new();
 
     if is_file(&target_name) {
         jack_files.push(target_name.clone())
     } else {
-        jack_files = get_jack_files(&target_name);
+        jack_files = get_target_type_files(&target_name, "jack");
     }
 
     for jack_file in jack_files {
@@ -20,6 +23,12 @@ fn main() {
             process::exit(1);
         });
         let _ = tokenizer.create_token_xml_file(&jack_file);
+    }
+
+    token_files = get_target_type_files(&target_name, "token");
+
+    for token_file in token_files {
+        let compilation_engine = CompilationEngine::new(&token_file);
     }
 }
 
@@ -32,7 +41,7 @@ fn get_target() -> String {
     String::from(target_name)
 }
 
-fn get_jack_files(dir_name: &str) -> Vec<String> {
+fn get_target_type_files(dir_name: &str, target_extension: &str) -> Vec<String> {
     let entries = fs::read_dir("./".to_string() + dir_name).unwrap();
 
     let mut jack_files = Vec::<String>::new();
@@ -42,7 +51,7 @@ fn get_jack_files(dir_name: &str) -> Vec<String> {
     }
     jack_files
         .iter()
-        .filter(|&file_name| file_name.clone().contains(".jack"))
+        .filter(|&file_name| file_name.clone().contains(target_extension))
         .cloned()
         .collect()
 }
