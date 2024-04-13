@@ -1,7 +1,11 @@
 mod compilation_engine;
 mod jack_tokenizer;
 
-use std::{env, fs, process};
+use std::{
+    env,
+    fs::{self, File},
+    process,
+};
 
 use compilation_engine::CompilationEngine;
 use jack_tokenizer::JackTokenizer;
@@ -17,12 +21,21 @@ fn main() {
         jack_files = get_target_type_files(&target_name, "jack");
     }
 
+    // for jack_file in jack_files {
+    //     let tokenizer = JackTokenizer::new(&jack_file).unwrap_or_else(|_| {
+    //         eprintln!("{} does not exsit", jack_file);
+    //         process::exit(1);
+    //     });
+    //     let _ = tokenizer.create_token_xml_file(&jack_file);
+    //     print!("{:?}", tokenizer.tokens);
+    // }
+
     for jack_file in jack_files {
-        let tokenizer = JackTokenizer::new(&jack_file).unwrap_or_else(|_| {
+        let mut tokenizer = JackTokenizer::new(&jack_file).unwrap_or_else(|_| {
             eprintln!("{} does not exsit", jack_file);
             process::exit(1);
         });
-        let _ = tokenizer.create_token_xml_file(&jack_file);
+        let _ = tokenizer.write_token_file(&jack_file);
     }
 
     token_files = get_target_type_files(&target_name, "token");

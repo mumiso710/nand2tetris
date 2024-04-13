@@ -1,11 +1,11 @@
 use std::{
-    fs::{self, File},
+    fs::{self, remove_file, File, OpenOptions},
     io::{self, Write},
 };
 
 pub struct JackTokenizer {
     pub tokens: Vec<Token>,
-    pub code_index: usize,
+    pub token_index: usize,
 }
 
 const SYMBOLS: [char; 19] = [
@@ -36,7 +36,7 @@ const KEYWORDS: [&str; 21] = [
     "return",
 ];
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Keywords {
     Class,
     Constructor,
@@ -61,7 +61,7 @@ pub enum Keywords {
     Return,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Symbols {
     LCurly(char),
     RCurly(char),
@@ -84,7 +84,7 @@ pub enum Symbols {
     Not(char),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Token {
     Keyword(Keywords),
     Symbol(Symbols),
@@ -101,8 +101,248 @@ impl JackTokenizer {
         let tokens = JackTokenizer::split_to_tokens(&jack_code_without_comments);
         Ok(JackTokenizer {
             tokens,
-            code_index: 0,
+            token_index: 0,
         })
+    }
+
+    pub fn create_token_xml_file(&self, file_name: &str) -> Result<(), io::Error> {
+        let file_name = file_name.replace(".jack", "") + "_token.xml";
+        let mut file = File::create(file_name)?;
+        file.write_all("<tokens>\n".as_bytes())?;
+        for token in &self.tokens {
+            match token {
+                Token::Keyword(keyword) => {
+                    let keyword = JackTokenizer::keywords_to_string(keyword);
+                    file.write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
+                }
+                Token::Symbol(symbol) => {
+                    let c = JackTokenizer::symbols_to_string(symbol);
+                    file.write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
+                }
+                Token::IntegerConstant(num) => {
+                    file.write_all(
+                        format!("<integerConstant> {} </integerConstant>\n", num).as_bytes(),
+                    )?;
+                }
+                Token::StringConstant(s) => {
+                    file.write_all(
+                        format!("<stringConstant> {} </stringConstant>\n", s).as_bytes(),
+                    )?;
+                }
+                Token::Identifier(var_name) => {
+                    file.write_all(
+                        format!("<identifier> {} </identifier>\n", var_name).as_bytes(),
+                    )?;
+                }
+            }
+        }
+        file.write_all("</tokens>\n".as_bytes())?;
+        Ok(())
+    }
+
+    pub fn write_current_token(&self, file: &mut File) -> Result<(), io::Error> {
+        let token = &self.tokens[self.token_index];
+
+        match token {
+            Token::Keyword(keyword) => {
+                let keyword = JackTokenizer::keywords_to_string(keyword);
+                file.write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
+            }
+            Token::Symbol(symbol) => {
+                let c = JackTokenizer::symbols_to_string(symbol);
+                file.write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
+            }
+            Token::IntegerConstant(num) => {
+                file.write_all(
+                    format!("<integerConstant> {} </integerConstant>\n", num).as_bytes(),
+                )?;
+            }
+            Token::StringConstant(s) => {
+                file.write_all(format!("<stringConstant> {} </stringConstant>\n", s).as_bytes())?;
+            }
+            Token::Identifier(var_name) => {
+                file.write_all(format!("<identifier> {} </identifier>\n", var_name).as_bytes())?;
+            }
+        }
+        Ok(())
+    }
+
+    pub fn write_token_file(&mut self, file_name: &str) -> Result<(), io::Error> {
+        let file_name = file_name.replace(".jack", "") + "_token.xml";
+        File::create(&file_name)?;
+        let mut file = OpenOptions::new().append(true).open(file_name)?;
+        file.write_all("<tokens>\n".as_bytes())?;
+        while self.has_more_tokens() {
+            self.write_current_token(&mut file)?;
+            self.advance();
+        }
+        file.write_all("</tokens>\n".as_bytes())?;
+        Ok(())
+    }
+    pub fn advance(&mut self) {
+        self.token_index += 1;
+    }
+
+    pub fn has_more_tokens(&self) -> bool {
+        self.token_index < self.tokens.len()
+    }
+
+    pub fn token_type(&self) -> Token {
+        self.tokens[self.token_index].clone()
+    }
+
+    pub fn keyword(&self) -> String {
+        let keyword = match &self.tokens[self.token_index] {
+            Token::Keyword(keyword) => keyword,
+            // this pattern match never used
+            _ => &Keywords::Class,
+        };
+
+        JackTokenizer::keywords_to_string(&keyword)
+    }
+
+    pub fn symbol(&self) -> String {
+        let symbol = match &self.tokens[self.token_index] {
+            Token::Symbol(symbol) => symbol,
+            // this pattern match never used
+            _ => &Symbols::And('&'),
+        };
+
+        JackTokenizer::symbols_to_string(&symbol)
+    }
+
+    pub fn identifier(&self) -> String {
+        match &self.tokens[self.token_index] {
+            Token::Identifier(identirfier) => identirfier.to_string(),
+            // this pattern match never used
+            _ => "".to_string(),
+        }
+    }
+
+    pub fn int_val(&self) -> usize {
+        match self.tokens[self.token_index] {
+            Token::IntegerConstant(val) => val,
+            // this pattern match never used
+            _ => 0,
+        }
+    }
+
+    pub fn string_val(&self) -> String {
+        match &self.tokens[self.token_index] {
+            Token::StringConstant(val) => val.to_string(),
+            // this pattern match never used
+            _ => "".to_string(),
+        }
+    }
+
+    fn is_symbol(c: char) -> bool {
+        SYMBOLS.contains(&c)
+    }
+
+    fn is_keyword(str: &String) -> bool {
+        KEYWORDS.contains(&str.as_str())
+    }
+
+    fn make_symbol_token(symbol: char) -> Token {
+        match symbol {
+            '{' => Token::Symbol(Symbols::LCurly('{')),
+            '}' => Token::Symbol(Symbols::RCurly('}')),
+            '(' => Token::Symbol(Symbols::LParen('(')),
+            ')' => Token::Symbol(Symbols::RParen(')')),
+            '[' => Token::Symbol(Symbols::LSquare('[')),
+            ']' => Token::Symbol(Symbols::RSquare(']')),
+            '.' => Token::Symbol(Symbols::Period('.')),
+            ',' => Token::Symbol(Symbols::Comma(',')),
+            ';' => Token::Symbol(Symbols::Semicolon(';')),
+            '+' => Token::Symbol(Symbols::Plus('+')),
+            '-' => Token::Symbol(Symbols::Minus('-')),
+            '*' => Token::Symbol(Symbols::Mult('*')),
+            '/' => Token::Symbol(Symbols::Div('/')),
+            '&' => Token::Symbol(Symbols::And('&')),
+            '|' => Token::Symbol(Symbols::Or('|')),
+            '<' => Token::Symbol(Symbols::Less('<')),
+            '>' => Token::Symbol(Symbols::Greater('>')),
+            '=' => Token::Symbol(Symbols::Eq('=')),
+            '~' => Token::Symbol(Symbols::Not('~')),
+            _ => panic!("this is not symbol character"),
+        }
+    }
+
+    fn make_keyword_token(keyword: &str) -> Token {
+        match keyword {
+            "class" => Token::Keyword(Keywords::Class),
+            "constructor" => Token::Keyword(Keywords::Constructor),
+            "function" => Token::Keyword(Keywords::Function),
+            "method" => Token::Keyword(Keywords::Method),
+            "field" => Token::Keyword(Keywords::Field),
+            "static" => Token::Keyword(Keywords::Static),
+            "var" => Token::Keyword(Keywords::Var),
+            "int" => Token::Keyword(Keywords::Int),
+            "char" => Token::Keyword(Keywords::Char),
+            "boolean" => Token::Keyword(Keywords::Boolean),
+            "void" => Token::Keyword(Keywords::Void),
+            "true" => Token::Keyword(Keywords::True),
+            "false" => Token::Keyword(Keywords::False),
+            "null" => Token::Keyword(Keywords::Null),
+            "this" => Token::Keyword(Keywords::This),
+            "let" => Token::Keyword(Keywords::Let),
+            "do" => Token::Keyword(Keywords::Do),
+            "if" => Token::Keyword(Keywords::If),
+            "else" => Token::Keyword(Keywords::Else),
+            "while" => Token::Keyword(Keywords::While),
+            "return" => Token::Keyword(Keywords::Return),
+            _ => panic!("this string is not keyword"),
+        }
+    }
+
+    fn symbols_to_string(symbol: &Symbols) -> String {
+        match symbol {
+            Symbols::LCurly(c)
+            | Symbols::RCurly(c)
+            | Symbols::RParen(c)
+            | Symbols::LParen(c)
+            | Symbols::RSquare(c)
+            | Symbols::LSquare(c)
+            | Symbols::Period(c)
+            | Symbols::Comma(c)
+            | Symbols::Semicolon(c)
+            | Symbols::Plus(c)
+            | Symbols::Minus(c)
+            | Symbols::Mult(c)
+            | Symbols::Div(c)
+            | Symbols::Or(c)
+            | Symbols::Eq(c)
+            | Symbols::Not(c) => c.to_string(),
+            Symbols::Less(_) => "&lt;".to_string(),
+            Symbols::Greater(_) => "&gt;".to_string(),
+            Symbols::And(_) => "&amp;".to_string(),
+        }
+    }
+
+    fn keywords_to_string(keyword: &Keywords) -> String {
+        match keyword {
+            Keywords::Class => "class".to_string(),
+            Keywords::Constructor => "constructor".to_string(),
+            Keywords::Function => "function".to_string(),
+            Keywords::Method => "method".to_string(),
+            Keywords::Field => "field".to_string(),
+            Keywords::Static => "static".to_string(),
+            Keywords::Var => "var".to_string(),
+            Keywords::Int => "int".to_string(),
+            Keywords::Char => "char".to_string(),
+            Keywords::Boolean => "boolean".to_string(),
+            Keywords::Void => "void".to_string(),
+            Keywords::True => "true".to_string(),
+            Keywords::False => "false".to_string(),
+            Keywords::Null => "null".to_string(),
+            Keywords::This => "this".to_string(),
+            Keywords::Let => "let".to_string(),
+            Keywords::Do => "do".to_string(),
+            Keywords::If => "if".to_string(),
+            Keywords::Else => "else".to_string(),
+            Keywords::While => "while".to_string(),
+            Keywords::Return => "return".to_string(),
+        }
     }
 
     fn remove_comments(jack_code: &String) -> String {
@@ -146,11 +386,8 @@ impl JackTokenizer {
 
     fn split_to_tokens(jack_code: &String) -> Vec<Token> {
         let mut in_string = false;
-
         let mut jack_code = jack_code.chars().peekable();
-
         let mut tokens = Vec::new();
-
         let mut token = "".to_string();
 
         while jack_code.peek() != None {
@@ -229,150 +466,5 @@ impl JackTokenizer {
             }
         }
         tokens
-    }
-
-    fn is_symbol(c: char) -> bool {
-        SYMBOLS.contains(&c)
-    }
-
-    fn is_keyword(str: &String) -> bool {
-        KEYWORDS.contains(&str.as_str())
-    }
-
-    fn make_symbol_token(symbol: char) -> Token {
-        match symbol {
-            '{' => Token::Symbol(Symbols::LCurly('{')),
-            '}' => Token::Symbol(Symbols::RCurly('}')),
-            '(' => Token::Symbol(Symbols::LParen('(')),
-            ')' => Token::Symbol(Symbols::RParen(')')),
-            '[' => Token::Symbol(Symbols::LSquare('[')),
-            ']' => Token::Symbol(Symbols::RSquare(']')),
-            '.' => Token::Symbol(Symbols::Period('.')),
-            ',' => Token::Symbol(Symbols::Comma(',')),
-            ';' => Token::Symbol(Symbols::Semicolon(';')),
-            '+' => Token::Symbol(Symbols::Plus('+')),
-            '-' => Token::Symbol(Symbols::Minus('-')),
-            '*' => Token::Symbol(Symbols::Mult('*')),
-            '/' => Token::Symbol(Symbols::Div('/')),
-            '&' => Token::Symbol(Symbols::And('&')),
-            '|' => Token::Symbol(Symbols::Or('|')),
-            '<' => Token::Symbol(Symbols::Less('<')),
-            '>' => Token::Symbol(Symbols::Greater('>')),
-            '=' => Token::Symbol(Symbols::Eq('=')),
-            '~' => Token::Symbol(Symbols::Not('~')),
-            _ => panic!("this is not symbol character"),
-        }
-    }
-
-    fn make_keyword_token(keyword: &str) -> Token {
-        match keyword {
-            "class" => Token::Keyword(Keywords::Class),
-            "constructor" => Token::Keyword(Keywords::Constructor),
-            "function" => Token::Keyword(Keywords::Function),
-            "method" => Token::Keyword(Keywords::Method),
-            "field" => Token::Keyword(Keywords::Field),
-            "static" => Token::Keyword(Keywords::Static),
-            "var" => Token::Keyword(Keywords::Var),
-            "int" => Token::Keyword(Keywords::Int),
-            "char" => Token::Keyword(Keywords::Char),
-            "boolean" => Token::Keyword(Keywords::Boolean),
-            "void" => Token::Keyword(Keywords::Void),
-            "true" => Token::Keyword(Keywords::True),
-            "false" => Token::Keyword(Keywords::False),
-            "null" => Token::Keyword(Keywords::Null),
-            "this" => Token::Keyword(Keywords::This),
-            "let" => Token::Keyword(Keywords::Let),
-            "do" => Token::Keyword(Keywords::Do),
-            "if" => Token::Keyword(Keywords::If),
-            "else" => Token::Keyword(Keywords::Else),
-            "while" => Token::Keyword(Keywords::While),
-            "return" => Token::Keyword(Keywords::Return),
-            _ => panic!("this string is not keyword"),
-        }
-    }
-
-    pub fn create_token_xml_file(&self, file_name: &str) -> Result<(), io::Error> {
-        let file_name = file_name.replace(".jack", "") + "_token.xml";
-        let mut file = File::create(file_name)?;
-        file.write_all("<tokens>\n".as_bytes())?;
-        for token in &self.tokens {
-            match token {
-                Token::Keyword(keyword) => {
-                    let keyword = JackTokenizer::keywords_to_string(keyword);
-                    file.write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
-                }
-                Token::Symbol(symbol) => {
-                    let c = JackTokenizer::symbols_to_char(symbol);
-                    file.write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
-                }
-                Token::IntegerConstant(num) => {
-                    file.write_all(
-                        format!("<integerConstant> {} </integerConstant>\n", num).as_bytes(),
-                    )?;
-                }
-                Token::StringConstant(s) => {
-                    file.write_all(
-                        format!("<stringConstant> {} </stringConstant>\n", s).as_bytes(),
-                    )?;
-                }
-                Token::Identifier(var_name) => {
-                    file.write_all(
-                        format!("<identifier> {} </identifier>\n", var_name).as_bytes(),
-                    )?;
-                }
-            }
-        }
-        file.write_all("</tokens>\n".as_bytes())?;
-        Ok(())
-    }
-
-    fn symbols_to_char(symbol: &Symbols) -> String {
-        match symbol {
-            Symbols::LCurly(c)
-            | Symbols::RCurly(c)
-            | Symbols::RParen(c)
-            | Symbols::LParen(c)
-            | Symbols::RSquare(c)
-            | Symbols::LSquare(c)
-            | Symbols::Period(c)
-            | Symbols::Comma(c)
-            | Symbols::Semicolon(c)
-            | Symbols::Plus(c)
-            | Symbols::Minus(c)
-            | Symbols::Mult(c)
-            | Symbols::Div(c)
-            | Symbols::Or(c)
-            | Symbols::Eq(c)
-            | Symbols::Not(c) => c.to_string(),
-            Symbols::Less(_) => "&lt;".to_string(),
-            Symbols::Greater(_) => "&gt;".to_string(),
-            Symbols::And(_) => "&amp;".to_string(),
-        }
-    }
-
-    fn keywords_to_string(keyword: &Keywords) -> String {
-        match keyword {
-            Keywords::Class => "class".to_string(),
-            Keywords::Constructor => "constructor".to_string(),
-            Keywords::Function => "function".to_string(),
-            Keywords::Method => "method".to_string(),
-            Keywords::Field => "field".to_string(),
-            Keywords::Static => "static".to_string(),
-            Keywords::Var => "var".to_string(),
-            Keywords::Int => "int".to_string(),
-            Keywords::Char => "char".to_string(),
-            Keywords::Boolean => "boolean".to_string(),
-            Keywords::Void => "void".to_string(),
-            Keywords::True => "true".to_string(),
-            Keywords::False => "false".to_string(),
-            Keywords::Null => "null".to_string(),
-            Keywords::This => "this".to_string(),
-            Keywords::Let => "let".to_string(),
-            Keywords::Do => "do".to_string(),
-            Keywords::If => "if".to_string(),
-            Keywords::Else => "else".to_string(),
-            Keywords::While => "while".to_string(),
-            Keywords::Return => "return".to_string(),
-        }
     }
 }
