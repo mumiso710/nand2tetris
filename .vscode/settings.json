@@ -1,0 +1,7 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./jack_analyzer/Cargo.toml",
+        "./assembler/Cargo.toml",
+        "./assembler/Cargo.toml"
+    ]
+}

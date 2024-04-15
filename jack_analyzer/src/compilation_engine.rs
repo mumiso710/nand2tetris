@@ -1,33 +1,25 @@
 use std::{fs, io};
 
+use jack_tokenizer::JackTokenizer;
+
 pub struct CompilationEngine {
-    pub tokens: Vec<String>,
-    pub code_index: usize,
+    pub tokenizer: JackTokenizer,
 }
 
 impl CompilationEngine {
     pub fn new(file_name: &str) -> Result<Self, io::Error> {
-        let token_strings = fs::read_to_string(file_name)?;
-        let tokens = token_strings
-            .split("\n")
-            .map(|token| token.to_string())
-            .collect();
-        Ok(CompilationEngine {
-            tokens,
-            code_index: 0,
-        })
+        let tokenizer = JackTokenizer::new(file_name)?;
+        Ok(CompilationEngine { tokenizer })
     }
 
     pub fn complie(&self) {
-        for token in &self.tokens {
-            match token.as_str() {
-                "<token>" => (),
-                "<keyword>" => (),
-                "<symbol>" => (),
-                "<integerConstant>" => (),
-                "<stringConstant>" => (),
-                "<identifier>" => (),
-                _ => (),
+        while self.tokenizer.has_more_tokens() {
+            match self.tokenizer.token_type() {
+                Token::Keyword() => (),
+                JackTokenizer::Symbol => (),
+                JackTokenizer::IntegerConstant => (),
+                JackTokenizer::StringConstant => (),
+                JackTokenizer::Identifier => (),
             }
         }
     }
