@@ -319,7 +319,7 @@ impl JackTokenizer {
         }
     }
 
-    fn keywords_to_string(keyword: &Keywords) -> String {
+    pub fn keywords_to_string(keyword: &Keywords) -> String {
         match keyword {
             Keywords::Class => "class".to_string(),
             Keywords::Constructor => "constructor".to_string(),

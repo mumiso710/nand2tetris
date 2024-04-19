@@ -1,5 +1,5 @@
-mod compilation_engine;
-mod jack_tokenizer;
+pub mod compilation_engine;
+pub mod jack_tokenizer;
 
 use std::{
     env,
