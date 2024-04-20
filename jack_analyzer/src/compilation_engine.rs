@@ -66,7 +66,7 @@ impl CompilationEngine {
         //        // write varName
         //        self.tokenizer.write_current_token(&mut self.file)?;
         //
-        //        while self.has_more_var() {
+        //        while self.is_comma() {
         //            // write ","
         //            self.write_token_and_advance()?;
         //            // write var name
@@ -182,7 +182,7 @@ impl CompilationEngine {
         // write '}'
         self.write_token_and_advance()?;
 
-        if !Self::is_semicolon(self.tokenizer.token_type()) {
+        if Self::is_else(self.tokenizer.token_type()) {
             // write else
             self.write_token_and_advance()?;
             // write '{'
@@ -242,6 +242,7 @@ impl CompilationEngine {
         self.file.write_all("</whileStatement>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_return(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<returnStatement>\n".as_bytes())?;
         // write return
@@ -274,6 +275,14 @@ impl CompilationEngine {
     }
     fn compile_expression_list(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<expressionList>\n".as_bytes())?;
+        if !Self::is_right_paran(self.tokenizer.token_type()) {
+            self.compile_expression()?;
+            while Self::is_comma(self.tokenizer.token_type()) {
+                // write ','
+                self.write_token_and_advance()?;
+                self.compile_expression()?;
+            }
+        }
         self.file.write_all("</expressionList>\n".as_bytes())?;
         Ok(())
     }
@@ -300,8 +309,8 @@ impl CompilationEngine {
         }
     }
 
-    fn has_more_var(&self) -> bool {
-        match self.tokenizer.token_type() {
+    fn is_comma(token: Token) -> bool {
+        match token {
             Symbol(Symbols::Comma(_)) => true,
             _ => false,
         }
@@ -371,6 +380,13 @@ impl CompilationEngine {
             | Symbol(Symbols::Greater(_))
             | Symbol(Symbols::Less(_))
             | Symbol(Symbols::Eq(_)) => true,
+            _ => false,
+        }
+    }
+
+    fn is_else(token: Token) -> bool {
+        match token {
+            Keyword(Keywords::Else) => true,
             _ => false,
         }
     }
