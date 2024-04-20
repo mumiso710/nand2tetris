@@ -270,7 +270,51 @@ impl CompilationEngine {
     }
     fn compile_term(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<term>\n".as_bytes())?;
-        self.write_token_and_advance()?;
+        match self.tokenizer.token_type() {
+            Symbol(Symbols::LParen(_)) => {
+                // write '('
+                self.write_token_and_advance()?;
+                self.compile_expression()?;
+                // write ')'
+                self.write_token_and_advance()?;
+            }
+            Symbol(Symbols::Minus(_)) | Symbol(Symbols::Not(_)) => {
+                // write ("-" | "~")
+                self.write_token_and_advance()?;
+                self.compile_term()?;
+            }
+            _ => {
+                self.write_token_and_advance()?;
+                match self.tokenizer.token_type() {
+                    Symbol(Symbols::LSquare(_)) => {
+                        // write '['
+                        self.write_token_and_advance()?;
+                        self.compile_expression()?;
+                        // write ']'
+                        self.write_token_and_advance()?;
+                    }
+                    Symbol(Symbols::LParen(_)) => {
+                        // write '('
+                        self.write_token_and_advance()?;
+                        self.compile_expression_list()?;
+                        // write ')'
+                        self.write_token_and_advance()?;
+                    }
+                    Symbol(Symbols::Period(_)) => {
+                        // write '.'
+                        self.write_token_and_advance()?;
+                        // write subroutine name
+                        self.write_token_and_advance()?;
+                        // write '('
+                        self.write_token_and_advance()?;
+                        self.compile_expression_list()?;
+                        // write ')'
+                        self.write_token_and_advance()?;
+                    }
+                    _ => (),
+                }
+            }
+        }
         self.file.write_all("</term>\n".as_bytes())?;
 
         Ok(())
