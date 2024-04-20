@@ -1,7 +1,6 @@
 use crate::jack_tokenizer::JackTokenizer;
-use crate::jack_tokenizer::Keywords;
-use crate::jack_tokenizer::Token;
 use crate::jack_tokenizer::Token::{Identifier, IntegerConstant, Keyword, StringConstant, Symbol};
+use crate::jack_tokenizer::{Keywords, Symbols, Token};
 
 use std::fs::File;
 use std::io::Write;
@@ -21,40 +20,54 @@ impl CompilationEngine {
         })
     }
 
-    pub fn complie(&self) {
-        while self.tokenizer.has_more_tokens() {
-            match self.tokenizer.token_type() {
-                Keyword(keyword) => match keyword {
-                    Keywords::Class => self.compile_class(keyword),
-                    Keywords::Constructor | Keywords::Function | Keywords::Method => {
-                        self.compile_subroutine()
-                    }
-                    //TODO: write appropriate function
-                    Keywords::Void => (),
-                    Keywords::Field | Keywords::Static => self.compile_class_var_dec(),
-                    Keywords::Var => (),
-                    Keywords::Int | Keywords::Char | Keywords::Boolean => (),
-                    Keywords::True | Keywords::False | Keywords::Null | Keywords::This => (),
-                    Keywords::Let => (),
-                    Keywords::Do => (),
-                    Keywords::If => (),
-                    Keywords::Else => (),
-                    Keywords::While => (),
-                    Keywords::Return => (),
-                },
-                Symbol(symbol) => (),
-                IntegerConstant(value) => (),
-                StringConstant(value) => (),
-                Identifier(identifier) => (),
-            }
+    pub fn compile_class(&mut self) -> Result<(), io::Error> {
+        self.file.write_all("<class>\n".as_bytes())?;
+        self.write_token_and_advance();
+
+        // write class name
+        self.write_token_and_advance();
+        // write "{"
+        self.write_token_and_advance();
+
+        while Self::is_class_var_dec_token(self.tokenizer.token_type()) {
+            Self::compile_class_var_dec(&self);
         }
+
+        while Self::is_subroutine_dec_token(self.tokenizer.token_type()) {
+            Self::compile_subroutine(&self);
+        }
+
+        // write "}"
+        self.write_token_and_advance();
+
+        self.file.write_all("</class>\n".as_bytes())?;
+
+        Ok(())
     }
 
-    fn compile_class(&mut self, keyword: Keywords) {
-        self.file.write_all("<class>\n".as_bytes());
-        self.tokenizer.write_current_token(file)
+    fn compile_class_var_dec(&mut self) -> Result<(), io::Error> {
+        self.file.write_all("<classVarDec>\n".as_bytes())?;
+
+        // write ('static' | 'field')
+        self.tokenizer.write_current_token(&mut self.file);
+        // write type
+        self.tokenizer.write_current_token(&mut self.file);
+        // write varName
+        self.tokenizer.write_current_token(&mut self.file);
+
+        while self.has_more_var() {
+            // write ","
+            self.write_token_and_advance();
+            // write var name
+            self.write_token_and_advance();
+        }
+
+        // write ";"
+        self.write_token_and_advance();
+
+        self.file.write_all("</classVarDec>\n".as_bytes())?;
+        Ok(())
     }
-    fn compile_class_var_dec(&self) {}
     fn compile_subroutine(&self) {}
     fn compile_parameter_list(&self) {}
     fn compile_var_dec(&self) {}
@@ -67,4 +80,32 @@ impl CompilationEngine {
     fn compile_expression(&self) {}
     fn compile_term(&self) {}
     fn compile_expression_list(&self) {}
+
+    fn write_token_and_advance(&mut self) {
+        self.tokenizer.write_current_token(&mut self.file);
+        self.tokenizer.advance();
+    }
+
+    fn is_class_var_dec_token(token: Token) -> bool {
+        match token {
+            Keyword(Keywords::Static) | Keyword(Keywords::Field) => true,
+            _ => false,
+        }
+    }
+
+    fn is_subroutine_dec_token(token: Token) -> bool {
+        match token {
+            Keyword(Keywords::Constructor)
+            | Keyword(Keywords::Function)
+            | Keyword(Keywords::Method) => true,
+            _ => false,
+        }
+    }
+
+    fn has_more_var(&self) -> bool {
+        match self.tokenizer.token_type() {
+            Symbol(Symbols::Comma(_)) => true,
+            _ => false,
+        }
+    }
 }
