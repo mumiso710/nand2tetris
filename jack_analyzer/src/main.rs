@@ -13,7 +13,6 @@ use jack_tokenizer::JackTokenizer;
 fn main() {
     let target_name = get_target();
     let mut jack_files = Vec::new();
-    let mut token_files = Vec::new();
 
     if is_file(&target_name) {
         jack_files.push(target_name.clone())
@@ -26,13 +25,12 @@ fn main() {
             eprintln!("{} does not exsit", jack_file);
             process::exit(1);
         });
+        let mut compilation_engine = CompilationEngine::new(&jack_file).unwrap_or_else(|_| {
+            eprintln!("{} does not exsit", jack_file);
+            process::exit(1);
+        });
         let _ = tokenizer.write_token_file(&jack_file);
-    }
-
-    token_files = get_target_type_files(&target_name, "token");
-
-    for token_file in token_files {
-        let compilation_engine = CompilationEngine::new(&token_file);
+        let _ = compilation_engine.compile_class();
     }
 }
 
