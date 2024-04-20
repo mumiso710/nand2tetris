@@ -18,6 +18,7 @@ pub enum CommandType {
 #[derive(Debug)]
 pub enum ParseError {
     InvalidFilename(String),
+    ReadLineError,
 }
 
 impl Display for ParseError {
