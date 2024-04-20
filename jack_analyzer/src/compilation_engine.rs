@@ -228,6 +228,8 @@ impl CompilationEngine {
     fn compile_while(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<whileStatement>\n".as_bytes())?;
 
+        // write while
+        self.write_token_and_advance()?;
         // write "("
         self.write_token_and_advance()?;
         self.compile_expression()?;
