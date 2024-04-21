@@ -59,19 +59,6 @@ impl CompilationEngine {
         self.file.write_all("</classVarDec>\n".as_bytes())?;
         Ok(())
 
-        //        // write ('static' | 'field')
-        //        self.tokenizer.write_current_token(&mut self.file)?;
-        //        // write type
-        //        self.tokenizer.write_current_token(&mut self.file)?;
-        //        // write varName
-        //        self.tokenizer.write_current_token(&mut self.file)?;
-        //
-        //        while self.is_comma() {
-        //            // write ","
-        //            self.write_token_and_advance()?;
-        //            // write var name
-        //            self.write_token_and_advance()?;
-        //        }
     }
     fn compile_subroutine(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<subroutineDec>\n".as_bytes())?;
