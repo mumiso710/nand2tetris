@@ -348,12 +348,12 @@ impl CompilationEngine {
         }
     }
 
-    fn is_return_token(token: Token) -> bool {
-        match token {
-            Keyword(Keywords::Return) => true,
-            _ => false,
-        }
-    }
+    // fn is_return_token(token: Token) -> bool {
+    //     match token {
+    //         Keyword(Keywords::Return) => true,
+    //         _ => false,
+    //     }
+    // }
 
     fn is_left_paran(token: Token) -> bool {
         match token {
