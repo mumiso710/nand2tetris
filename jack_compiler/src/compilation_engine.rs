@@ -58,7 +58,6 @@ impl CompilationEngine {
 
         self.file.write_all("</classVarDec>\n".as_bytes())?;
         Ok(())
-
     }
     fn compile_subroutine(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<subroutineDec>\n".as_bytes())?;
