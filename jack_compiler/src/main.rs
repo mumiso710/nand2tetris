@@ -29,7 +29,6 @@ fn main() {
             eprintln!("{} does not exsit", jack_file);
             process::exit(1);
         });
-        let _ = tokenizer.write_token_file(&jack_file);
         let _ = compilation_engine.compile_class();
     }
 }

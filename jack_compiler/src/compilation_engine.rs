@@ -320,7 +320,32 @@ impl CompilationEngine {
     }
 
     fn write_token_and_advance(&mut self) -> Result<(), io::Error> {
-        self.tokenizer.write_current_token(&mut self.file)?;
+        let token = self.tokenizer.token_type();
+        match token {
+            Keyword(keyword) => {
+                let keyword = JackTokenizer::keywords_to_string(&keyword);
+                self.file
+                    .write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
+            }
+            Symbol(symbol) => {
+                let c = JackTokenizer::symbols_to_string(&symbol);
+                self.file
+                    .write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
+            }
+            IntegerConstant(num) => {
+                self.file.write_all(
+                    format!("<integerConstant> {} </integerConstant>\n", num).as_bytes(),
+                )?;
+            }
+            StringConstant(s) => {
+                self.file
+                    .write_all(format!("<stringConstant> {} </stringConstant>\n", s).as_bytes())?;
+            }
+            Identifier(var_name) => {
+                self.file
+                    .write_all(format!("<identifier> {} </identifier>\n", var_name).as_bytes())?;
+            }
+        }
         self.tokenizer.advance();
         Ok(())
     }
@@ -347,13 +372,6 @@ impl CompilationEngine {
             _ => false,
         }
     }
-
-    // fn is_return_token(token: Token) -> bool {
-    //     match token {
-    //         Keyword(Keywords::Return) => true,
-    //         _ => false,
-    //     }
-    // }
 
     fn is_left_paran(token: Token) -> bool {
         match token {

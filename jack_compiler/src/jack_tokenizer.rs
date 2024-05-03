@@ -140,45 +140,6 @@ impl JackTokenizer {
         Ok(())
     }
 
-    pub fn write_current_token(&self, file: &mut File) -> Result<(), io::Error> {
-        let token = &self.tokens[self.token_index];
-
-        match token {
-            Token::Keyword(keyword) => {
-                let keyword = JackTokenizer::keywords_to_string(keyword);
-                file.write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
-            }
-            Token::Symbol(symbol) => {
-                let c = JackTokenizer::symbols_to_string(symbol);
-                file.write_all(format!("<symbol> {} </symbol>\n", c).as_bytes())?;
-            }
-            Token::IntegerConstant(num) => {
-                file.write_all(
-                    format!("<integerConstant> {} </integerConstant>\n", num).as_bytes(),
-                )?;
-            }
-            Token::StringConstant(s) => {
-                file.write_all(format!("<stringConstant> {} </stringConstant>\n", s).as_bytes())?;
-            }
-            Token::Identifier(var_name) => {
-                file.write_all(format!("<identifier> {} </identifier>\n", var_name).as_bytes())?;
-            }
-        }
-        Ok(())
-    }
-
-    pub fn write_token_file(&mut self, file_name: &str) -> Result<(), io::Error> {
-        let file_name = file_name.replace(".jack", "") + "_token.xml";
-        File::create(&file_name)?;
-        let mut file = OpenOptions::new().append(true).open(file_name)?;
-        file.write_all("<tokens>\n".as_bytes())?;
-        while self.has_more_tokens() {
-            self.write_current_token(&mut file)?;
-            self.advance();
-        }
-        file.write_all("</tokens>\n".as_bytes())?;
-        Ok(())
-    }
     pub fn advance(&mut self) {
         self.token_index += 1;
     }
@@ -295,7 +256,7 @@ impl JackTokenizer {
         }
     }
 
-    fn symbols_to_string(symbol: &Symbols) -> String {
+    pub fn symbols_to_string(symbol: &Symbols) -> String {
         match symbol {
             Symbols::LCurly(c)
             | Symbols::RCurly(c)
