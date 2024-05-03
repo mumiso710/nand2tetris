@@ -319,6 +319,9 @@ impl CompilationEngine {
         Ok(())
     }
 
+    //TODO: add symboltable tags
+    // Ex. <term> <varName> x </varName> </term>
+    //     <term> <intConstant> 2 </intConstant> </term>
     fn write_token_and_advance(&mut self) -> Result<(), io::Error> {
         let token = self.tokenizer.token_type();
         match token {

@@ -1,14 +1,9 @@
 pub mod compilation_engine;
 pub mod jack_tokenizer;
 
-use std::{
-    env,
-    fs::{self, File},
-    process,
-};
+use std::{env, fs, process};
 
 use compilation_engine::CompilationEngine;
-use jack_tokenizer::JackTokenizer;
 
 fn main() {
     let target_name = get_target();
@@ -21,10 +16,6 @@ fn main() {
     }
 
     for jack_file in jack_files {
-        let mut tokenizer = JackTokenizer::new(&jack_file).unwrap_or_else(|_| {
-            eprintln!("{} does not exsit", jack_file);
-            process::exit(1);
-        });
         let mut compilation_engine = CompilationEngine::new(&jack_file).unwrap_or_else(|_| {
             eprintln!("{} does not exsit", jack_file);
             process::exit(1);
