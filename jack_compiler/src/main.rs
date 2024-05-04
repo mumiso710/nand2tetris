@@ -1,5 +1,6 @@
 pub mod compilation_engine;
 pub mod jack_tokenizer;
+pub mod symbol_table;
 
 use std::{env, fs, process};
 
