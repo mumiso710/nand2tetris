@@ -2,6 +2,8 @@ use crate::jack_tokenizer::JackTokenizer;
 use crate::jack_tokenizer::Token::{Identifier, IntegerConstant, Keyword, StringConstant, Symbol};
 use crate::jack_tokenizer::{Keywords, Symbols, Token};
 
+use crate::symbol_table::SymbolTable;
+
 use std::fs::File;
 use std::io;
 use std::io::Write;
@@ -9,6 +11,7 @@ use std::io::Write;
 pub struct CompilationEngine {
     pub file: File,
     pub tokenizer: JackTokenizer,
+    pub symbol_table: SymbolTable,
 }
 
 impl CompilationEngine {
@@ -18,6 +21,7 @@ impl CompilationEngine {
         Ok(CompilationEngine {
             file: File::create(file_name)?,
             tokenizer,
+            symbol_table: SymbolTable::new(),
         })
     }
 
@@ -47,7 +51,17 @@ impl CompilationEngine {
     }
 
     fn compile_class_var_dec(&mut self) -> Result<(), io::Error> {
+        let token = self.tokenizer.token_type();
+
         self.file.write_all("<classVarDec>\n".as_bytes())?;
+
+        // write static | field
+        self.symbol_table.set_token_kind(&token);
+        self.write_token_and_advance()?;
+
+        // write variable type, ex. int, string
+        self.symbol_table.set_token_type(&token);
+        self.write_token_and_advance()?;
 
         while !Self::is_semicolon(self.tokenizer.token_type()) {
             self.write_token_and_advance()?;
@@ -59,6 +73,7 @@ impl CompilationEngine {
         self.file.write_all("</classVarDec>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_subroutine(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<subroutineDec>\n".as_bytes())?;
         // write ('constrctor' | 'function' | 'method')
@@ -92,18 +107,29 @@ impl CompilationEngine {
         self.file.write_all("</subroutineDec>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_parameter_list(&mut self) -> Result<(), io::Error> {
+        let mut token = self.tokenizer.token_type();
+        self.symbol_table.set_token_kind(&token);
+
         self.file.write_all("<parameterList>\n".as_bytes())?;
         while !Self::is_right_paran(self.tokenizer.token_type()) {
+            token = self.tokenizer.token_type();
+            self.symbol_table.set_token_type(&token);
             self.write_token_and_advance()?;
         }
         // write ')'
         self.file.write_all("</parameterList>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_var_dec(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<varDec>\n".as_bytes())?;
         while !Self::is_semicolon(self.tokenizer.token_type()) {
+            self.symbol_table
+                .set_token_kind(&self.tokenizer.token_type());
+            self.symbol_table
+                .set_token_type(&self.tokenizer.token_type());
             self.write_token_and_advance()?;
         }
         // write ')'
@@ -111,6 +137,7 @@ impl CompilationEngine {
         self.file.write_all("</varDec>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_statements(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<statements>\n".as_bytes())?;
         while Self::is_statement(self.tokenizer.token_type()) {
@@ -180,6 +207,7 @@ impl CompilationEngine {
         self.file.write_all("</ifStatement>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_do(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<doStatement>\n".as_bytes())?;
         // write "do"
@@ -211,6 +239,7 @@ impl CompilationEngine {
         self.file.write_all("</doStatement>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_while(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<whileStatement>\n".as_bytes())?;
 
@@ -243,6 +272,7 @@ impl CompilationEngine {
         self.file.write_all("</returnStatement>\n".as_bytes())?;
         Ok(())
     }
+
     fn compile_expression(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<expression>\n".as_bytes())?;
         self.compile_term()?;
@@ -254,6 +284,7 @@ impl CompilationEngine {
 
         Ok(())
     }
+
     fn compile_term(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<term>\n".as_bytes())?;
         match self.tokenizer.token_type() {
@@ -305,6 +336,7 @@ impl CompilationEngine {
 
         Ok(())
     }
+
     fn compile_expression_list(&mut self) -> Result<(), io::Error> {
         self.file.write_all("<expressionList>\n".as_bytes())?;
         if !Self::is_right_paran(self.tokenizer.token_type()) {
@@ -319,9 +351,6 @@ impl CompilationEngine {
         Ok(())
     }
 
-    //TODO: add symboltable tags
-    // Ex. <term> <varName> x </varName> </term>
-    //     <term> <intConstant> 2 </intConstant> </term>
     fn write_token_and_advance(&mut self) -> Result<(), io::Error> {
         let token = self.tokenizer.token_type();
         match token {
@@ -344,9 +373,27 @@ impl CompilationEngine {
                 self.file
                     .write_all(format!("<stringConstant> {} </stringConstant>\n", s).as_bytes())?;
             }
+            //TODO: add symboltable tags
+            // only write tags when processing class_var_dec or subrountine_dec
             Identifier(var_name) => {
-                self.file
-                    .write_all(format!("<identifier> {} </identifier>\n", var_name).as_bytes())?;
+                let exist = self.symbol_table.contains(&var_name);
+                if !exist {
+                    self.symbol_table.define(
+                        var_name.clone(),
+                        self.symbol_table.get_current_token_type(),
+                        self.symbol_table.get_current_token_kind(),
+                    );
+                }
+                let kind = self.symbol_table.kind_of(&var_name).unwrap();
+                let def_or_use = if exist { "use" } else { "define" };
+                let index = self.symbol_table.index_of(&var_name).unwrap();
+                self.file.write_all(
+                    format!(
+                        "<identifier> ({} {} {}) {} </identifier>\n",
+                        kind, def_or_use, index, var_name
+                    )
+                    .as_bytes(),
+                )?;
             }
         }
         self.tokenizer.advance();
