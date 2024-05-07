@@ -8,10 +8,19 @@ use std::fs::File;
 use std::io;
 use std::io::Write;
 
+pub enum CompileStatus {
+    Class,
+    VarDec,
+    Subroutine,
+    ParameterList,
+    Statement,
+}
+
 pub struct CompilationEngine {
     pub file: File,
     pub tokenizer: JackTokenizer,
     pub symbol_table: SymbolTable,
+    pub compile_status: CompileStatus,
 }
 
 impl CompilationEngine {
@@ -22,10 +31,13 @@ impl CompilationEngine {
             file: File::create(file_name)?,
             tokenizer,
             symbol_table: SymbolTable::new(),
+            compile_status: CompileStatus::Class,
         })
     }
 
     pub fn compile_class(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::Class;
+
         self.file.write_all("<class>\n".as_bytes())?;
         self.write_token_and_advance()?;
 
@@ -51,6 +63,8 @@ impl CompilationEngine {
     }
 
     fn compile_class_var_dec(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::VarDec;
+
         let token = self.tokenizer.token_type();
 
         self.file.write_all("<classVarDec>\n".as_bytes())?;
@@ -75,6 +89,8 @@ impl CompilationEngine {
     }
 
     fn compile_subroutine(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::Subroutine;
+
         self.file.write_all("<subroutineDec>\n".as_bytes())?;
         // write ('constrctor' | 'function' | 'method')
         self.write_token_and_advance()?;
@@ -109,6 +125,7 @@ impl CompilationEngine {
     }
 
     fn compile_parameter_list(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::ParameterList;
         let mut token = self.tokenizer.token_type();
         self.symbol_table.set_token_kind(&token);
 
@@ -124,6 +141,8 @@ impl CompilationEngine {
     }
 
     fn compile_var_dec(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::VarDec;
+
         self.file.write_all("<varDec>\n".as_bytes())?;
         while !Self::is_semicolon(self.tokenizer.token_type()) {
             self.symbol_table
@@ -139,6 +158,7 @@ impl CompilationEngine {
     }
 
     fn compile_statements(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::Statement;
         self.file.write_all("<statements>\n".as_bytes())?;
         while Self::is_statement(self.tokenizer.token_type()) {
             match self.tokenizer.token_type() {
@@ -375,26 +395,33 @@ impl CompilationEngine {
             }
             //TODO: add symboltable tags
             // only write tags when processing class_var_dec or subrountine_dec
-            Identifier(var_name) => {
-                let exist = self.symbol_table.contains(&var_name);
-                if !exist {
-                    self.symbol_table.define(
-                        var_name.clone(),
-                        self.symbol_table.get_current_token_type(),
-                        self.symbol_table.get_current_token_kind(),
-                    );
+            Identifier(var_name) => match self.compile_status {
+                CompileStatus::VarDec | CompileStatus::ParameterList => {
+                    let exist = self.symbol_table.contains(&var_name);
+                    if !exist {
+                        self.symbol_table.define(
+                            var_name.clone(),
+                            self.symbol_table.get_current_token_type(),
+                            self.symbol_table.get_current_token_kind(),
+                        );
+                    }
+                    let kind = self.symbol_table.kind_of(&var_name).unwrap();
+                    let def_or_use = if exist { "use" } else { "define" };
+                    let index = self.symbol_table.index_of(&var_name).unwrap();
+                    self.file.write_all(
+                        format!(
+                            "<identifier> ({} {} {}) {} </identifier>\n",
+                            kind, def_or_use, index, var_name
+                        )
+                        .as_bytes(),
+                    )?;
                 }
-                let kind = self.symbol_table.kind_of(&var_name).unwrap();
-                let def_or_use = if exist { "use" } else { "define" };
-                let index = self.symbol_table.index_of(&var_name).unwrap();
-                self.file.write_all(
-                    format!(
-                        "<identifier> ({} {} {}) {} </identifier>\n",
-                        kind, def_or_use, index, var_name
-                    )
-                    .as_bytes(),
-                )?;
-            }
+                _ => {
+                    self.file.write_all(
+                        format!("<identifier> {} </identifier>\n", var_name).as_bytes(),
+                    )?;
+                }
+            },
         }
         self.tokenizer.advance();
         Ok(())
