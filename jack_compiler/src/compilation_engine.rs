@@ -378,6 +378,7 @@ impl CompilationEngine {
         let token = self.tokenizer.token_type();
         match token {
             Keyword(keyword) => {
+                //TODO:ここにvarのときを場合わけ?
                 let keyword = JackTokenizer::keywords_to_string(&keyword);
                 self.file
                     .write_all(format!("<keyword> {} </keyword>\n", keyword).as_bytes())?;
@@ -398,8 +399,13 @@ impl CompilationEngine {
             }
             //TODO: add symboltable tags
             // only write tags when processing class_var_dec or subrountine_dec
+            // そもそもvarって来た時にvar 型 変数
+            // ってなってるからまとめて暑かった方がいいかも
             Identifier(var_name) => match self.compile_status {
                 CompileStatus::VarDec | CompileStatus::ParameterList => {
+                    //TODO:
+                    // 今だと var Array とかの Arrayに対してもSymbolTableに追加してしまっている
+                    // var int a, var Array a, のようなときは aのみsymboltableに登録
                     let exist = self.symbol_table.contains(&var_name);
                     if !exist {
                         self.symbol_table.define(
