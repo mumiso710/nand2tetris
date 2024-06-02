@@ -14,6 +14,7 @@ pub enum CompileStatus {
     Subroutine,
     ParameterList,
     Statement,
+    Expression,
 }
 
 pub struct CompilationEngine {
@@ -294,6 +295,7 @@ impl CompilationEngine {
     }
 
     fn compile_expression(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::Expression;
         self.file.write_all("<expression>\n".as_bytes())?;
         self.compile_term()?;
         while Self::is_op_token(self.tokenizer.token_type()) {
@@ -358,6 +360,7 @@ impl CompilationEngine {
     }
 
     fn compile_expression_list(&mut self) -> Result<(), io::Error> {
+        self.compile_status = CompileStatus::Expression;
         self.file.write_all("<expressionList>\n".as_bytes())?;
         if !Self::is_right_paran(self.tokenizer.token_type()) {
             self.compile_expression()?;
@@ -407,6 +410,18 @@ impl CompilationEngine {
                     }
                     let kind = self.symbol_table.kind_of(&var_name).unwrap();
                     let def_or_use = if exist { "use" } else { "define" };
+                    let index = self.symbol_table.index_of(&var_name).unwrap();
+                    self.file.write_all(
+                        format!(
+                            "<identifier> ({} {} {}) {} </identifier>\n",
+                            kind, def_or_use, index, var_name
+                        )
+                        .as_bytes(),
+                    )?;
+                }
+                CompileStatus::Expression => {
+                    let kind = self.symbol_table.kind_of(&var_name).unwrap();
+                    let def_or_use = "use";
                     let index = self.symbol_table.index_of(&var_name).unwrap();
                     self.file.write_all(
                         format!(
